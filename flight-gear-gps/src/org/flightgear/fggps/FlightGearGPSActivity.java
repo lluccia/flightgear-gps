@@ -1,7 +1,12 @@
-package dev.conca.fggps;
+package org.flightgear.fggps;
 
 import java.io.IOException;
 import java.util.Timer;
+
+import org.flightgear.fggps.R;
+import org.flightgear.fggps.updaters.GPSUpdater;
+import org.flightgear.fggps.updaters.MapUpdater;
+import org.flightgear.fggps.updaters.UpdaterTask;
 
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -9,10 +14,6 @@ import android.util.Log;
 
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
-
-import dev.conca.fggps.updaters.GPSUpdater;
-import dev.conca.fggps.updaters.MapUpdater;
-import dev.conca.fggps.updaters.UpdaterTask;
 
 public class FlightGearGPSActivity extends MapActivity {
 	

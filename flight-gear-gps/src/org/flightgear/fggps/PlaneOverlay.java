@@ -1,4 +1,4 @@
-package dev.conca.fggps;
+package org.flightgear.fggps;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;

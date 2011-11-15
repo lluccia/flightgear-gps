@@ -1,6 +1,10 @@
-package dev.conca.fggps.updaters;
+package org.flightgear.fggps.updaters;
 
 import java.util.List;
+
+import org.flightgear.fggps.PlaneItemizedOverlay;
+import org.flightgear.fggps.PlaneOverlay;
+import org.flightgear.fggps.domain.GPS;
 
 import android.graphics.Bitmap;
 
@@ -8,9 +12,6 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 
-import dev.conca.fggps.PlaneItemizedOverlay;
-import dev.conca.fggps.PlaneOverlay;
-import dev.conca.fggps.domain.GPS;
 
 /**
  * This class is responsible for updating the map with the current GPS position

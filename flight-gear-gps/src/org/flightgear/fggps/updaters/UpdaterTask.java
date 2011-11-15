@@ -1,4 +1,4 @@
-package dev.conca.fggps.updaters;
+package org.flightgear.fggps.updaters;
 
 import java.io.IOException;
 import java.util.TimerTask;

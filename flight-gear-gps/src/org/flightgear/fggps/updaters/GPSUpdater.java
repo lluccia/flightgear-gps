@@ -1,10 +1,10 @@
-package dev.conca.fggps.updaters;
+package org.flightgear.fggps.updaters;
 
 import java.io.IOException;
 
 import org.flightgear.fgfsclient.FGFSConnection;
+import org.flightgear.fggps.domain.GPS;
 
-import dev.conca.fggps.domain.GPS;
 
 /**
  * Class responsible for getting gps information from simulation

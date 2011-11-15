@@ -1,4 +1,4 @@
-package dev.conca.fggps.domain;
+package org.flightgear.fggps.domain;
 
 public class GPS {
 	
