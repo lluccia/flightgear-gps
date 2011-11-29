@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:example="http://schemas.android.com/apk/res/com.uks.android.frsad.common" >
+
+    <PreferenceCategory android:title="Network configuration" >
+
+        <EditTextPreference
+            android:dialogMessage="IP address of FlighGear"
+            android:dialogTitle="FlightGear IP"
+            android:key="flightgear_ip"
+            android:persistent="true"
+            android:summary="Sets the IP address of FlighGear application"
+            android:title="FlightGear IP" />
+
+        <EditTextPreference
+            android:defaultValue="9000"
+            android:inputType="number"
+            android:dialogMessage="Port of FlighGear telnet listener"
+            android:dialogTitle="FlightGear Port"
+            android:key="flightgear_port"
+            android:persistent="true"
+            android:summary="Sets the Port address of FlighGear telnet listener"
+            android:title="FlightGear Port" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

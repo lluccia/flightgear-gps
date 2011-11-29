@@ -1,66 +1,80 @@
 package org.flightgear.fggps;
 
-import java.io.IOException;
 import java.util.Timer;
 
-import org.flightgear.fggps.R;
-import org.flightgear.fggps.updaters.GPSUpdater;
 import org.flightgear.fggps.updaters.MapUpdater;
-import org.flightgear.fggps.updaters.UpdaterTask;
 
-import android.graphics.BitmapFactory;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
+import android.preference.PreferenceManager;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
 
 public class FlightGearGPSActivity extends MapActivity {
-	
-	/** FG Server IP - to be parameterized */
-	private static final String IP="192.168.1.103";
-	
-	/** FG Server PORT - to be parameterized */
-	private static final int PORT = 9000;
-	
-	/** Time between position updates */
-	private long UPDATE_RATE_MS = 100;
-	
-	private MapView mapView;
-	
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
 
-        mapView = (MapView) findViewById(R.id.mapview);
+	private SharedPreferences preferences;
+
+	private MapView mapView;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.gps);
+
+		preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+		String flightGearIP = preferences.getString("flightgear_ip", "");
+		String flightGearPort = preferences.getString("flightgear_port", "9000");
+
+		mapView = (MapView) findViewById(R.id.mapview);
 		mapView.setBuiltInZoomControls(true);
 		mapView.setStreetView(false);
 		mapView.setSatellite(true);
+		mapView.setKeepScreenOn(true);
 		
-		GPSUpdater gpsUpdater=null;
-		try {
-			gpsUpdater = new GPSUpdater(IP, PORT);
-		} catch (IOException e) {
-			Log.e("ConnectionError", "Error connecting to FlightGear server.", e);
-			this.finish();
-		}
 		
-		MapUpdater mapUpdater = 
-				new MapUpdater(mapView, 
-						gpsUpdater.getGps(),
-						BitmapFactory.decodeResource(this.getResources(), 
-								R.drawable.plane_icon));
+		FlightGearConnector flightGearConnector = new FlightGearConnector(
+				flightGearIP, Integer.valueOf(flightGearPort));
 		
-		//set timer task to update coordinates
-		UpdaterTask updater = new UpdaterTask(mapUpdater, gpsUpdater);
+		flightGearConnector.connect();
+		
+		MapUpdater mapUpdater = new MapUpdater(mapView, flightGearConnector,
+				this.getResources());
+
+		// set timer task to update map periodically
 		Timer timer = new Timer("update-timer");
-		timer.scheduleAtFixedRate(updater, 0, UPDATE_RATE_MS );
-    }
+		timer.scheduleAtFixedRate(mapUpdater, 0, MapUpdater.UPDATE_INTERVAL_MS);
+		
+	}
 
 	@Override
 	protected boolean isRouteDisplayed() {
 		return false;
 	}
-	
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle item selection
+		switch (item.getItemId()) {
+		case R.id.preferences:
+			Intent settingsActivity = new Intent(getBaseContext(),
+					PreferencesActivity.class);
+			startActivity(settingsActivity);
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
 }
