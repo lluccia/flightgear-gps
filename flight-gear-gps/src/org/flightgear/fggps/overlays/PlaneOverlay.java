@@ -1,6 +1,7 @@
 package org.flightgear.fggps.overlays;
 
 import org.flightgear.fggps.R;
+import org.flightgear.fggps.gps.GPS;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -23,20 +24,15 @@ public class PlaneOverlay extends Overlay {
 
 	private Resources resources;
 	
-	private GeoPoint position;
+	private GPS gps;
+
+	private float lastHeading;
 	
-	private float heading;
-	
-	public PlaneOverlay(Resources resources) {
-		this(resources, new GeoPoint((int) (20*1E6), (int) (20*1E6)), 10);
-	}
-	
-	public PlaneOverlay(Resources resources, GeoPoint position, float heading) {
+	public PlaneOverlay(Resources resources, GPS gps) {
 		this.resources = resources;
-		this.position = position;
 		this.planeIcon = BitmapFactory.decodeResource(resources, R.drawable.plane_icon);
-		this.heading = heading;
-		this.rotatedPlaneIcon = rotateDrawable(heading);
+		this.gps = gps;
+		this.rotatedPlaneIcon = rotateDrawable(gps.getHeading());
 	}
 	
 	private Bitmap rotateDrawable(float angle) {
@@ -54,13 +50,9 @@ public class PlaneOverlay extends Overlay {
 		return new BitmapDrawable(resources, canvasBitmap).getBitmap();
 	}
 	
-	public void updatePosition(GeoPoint position) {
-		this.position = position;
-	}
-	
-	public void updateHeading(float heading) {
-		if (heading != this.heading) {
-			this.heading = heading;
+	private void updateHeading(float heading) {
+		if (heading != this.lastHeading) {
+			this.lastHeading = heading;
 			this.rotatedPlaneIcon = rotateDrawable(heading);
 		}
 	}
@@ -69,11 +61,13 @@ public class PlaneOverlay extends Overlay {
 	public boolean draw(Canvas canvas, MapView mapView, boolean shadow,
 			long when) {
 		
+		updateHeading(gps.getHeading());
+		
 		Projection projection = mapView.getProjection();
 		
 		Point point = new Point();
 				
-		projection.toPixels(position, point);
+		projection.toPixels(gps.getGeoPointPosition(), point);
 		
 		canvas.drawBitmap(rotatedPlaneIcon, 
 				point.x - rotatedPlaneIcon.getWidth() / 2,
@@ -81,5 +75,9 @@ public class PlaneOverlay extends Overlay {
 				null);
 		
 		return super.draw(canvas, mapView, shadow, when);
+	}
+	
+	public GeoPoint getGeoPointPosition() {
+		return this.gps.getGeoPointPosition();
 	}
 }

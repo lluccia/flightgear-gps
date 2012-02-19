@@ -2,6 +2,8 @@ package org.flightgear.fggps;
 
 import java.util.Timer;
 
+import org.flightgear.fggps.connection.FlightGearConnector;
+import org.flightgear.fggps.gps.GPS;
 import org.flightgear.fggps.updaters.MapUpdater;
 
 import android.content.Intent;
@@ -21,6 +23,12 @@ public class FlightGearGPSActivity extends MapActivity {
 
 	private MapView mapView;
 
+	/** Timer responsible for the running the updater tasks */
+	private Timer timer;
+	
+	/** Task responsible for updating the map drawings */
+	private MapUpdater mapUpdater;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -43,11 +51,11 @@ public class FlightGearGPSActivity extends MapActivity {
 		
 		flightGearConnector.connect();
 		
-		MapUpdater mapUpdater = new MapUpdater(mapView, flightGearConnector,
-				this.getResources());
+		this.mapUpdater = new MapUpdater(mapView, flightGearConnector,
+				this.getResources(), new GPS());
 
 		// set timer task to update map periodically
-		Timer timer = new Timer("update-timer");
+		this.timer = new Timer("update-timer");
 		timer.scheduleAtFixedRate(mapUpdater, 0, MapUpdater.UPDATE_INTERVAL_MS);
 		
 	}

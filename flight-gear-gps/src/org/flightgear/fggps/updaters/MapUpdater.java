@@ -1,15 +1,17 @@
 package org.flightgear.fggps.updaters;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.TimerTask;
 
-import org.flightgear.fggps.FlightGearConnector;
+import org.flightgear.fggps.connection.FlightGearConnector;
+import org.flightgear.fggps.extractor.GPSExtractor;
+import org.flightgear.fggps.gps.GPS;
+import org.flightgear.fggps.gps.GPSScratch;
+import org.flightgear.fggps.gps.WaypointType;
 import org.flightgear.fggps.overlays.PlaneOverlay;
 import org.flightgear.fggps.overlays.RouteOverlay;
 
 import android.content.res.Resources;
-import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
@@ -33,24 +35,31 @@ public class MapUpdater extends TimerTask {
 	
 	private RouteOverlay routeOverlay;
 	
-	private FlightGearConnector flightGearConnector;
+	private GPSExtractor gpsExtractor;
 	
 	private boolean online = false;
 	
 	public MapUpdater(MapView mapView, 
-			FlightGearConnector flightGearConnector, Resources resources) {
+			FlightGearConnector fgConnector, Resources resources, GPS gps) {
 		super();
 		this.mapView = mapView; 
-		this.flightGearConnector = flightGearConnector;
 		
-		this.planeOverlay = new PlaneOverlay(resources);
-		this.routeOverlay = RouteOverlay.getDummyRoute();
+		this.planeOverlay = new PlaneOverlay(resources, gps);
+//		this.routeOverlay = RouteOverlay.getDummyRoute();
+		
+		GPSScratch gpsScratch = new GPSScratch(fgConnector);
+		
+		RouteOverlay rtOverlay = new RouteOverlay();
+			rtOverlay.setStartPoint(gpsScratch.getCurrentWaypoint());
+			rtOverlay.setWaypoints(gpsScratch.nearest(WaypointType.AIRPORT, 10));
+		this.routeOverlay = rtOverlay;
 		
 		GeoPoint homePosition = new GeoPoint((int) (20*1E6), (int) (20*1E6));
 		
 		mapView.getController().animateTo(homePosition);
 		
-		changeOnlineStatus(false);
+		this.gpsExtractor = new GPSExtractor(fgConnector, gps);
+		setOnlineOverlays();
 	}
 	
 	public void setOnlineOverlays() {
@@ -65,22 +74,9 @@ public class MapUpdater extends TimerTask {
 		overlays.clear();
 	}
 	
-	public void update() throws IOException {
-		GeoPoint position = flightGearConnector.getCurrentPosition();
-		planeOverlay.updatePosition(position);
-		planeOverlay.updateHeading(flightGearConnector.getCurrentHeadingTrueDeg());
-		
-		
-		Log.d("MapUpdater","Updating plane position");
-		if (position != null) {
-			Log.d("MapUpdater","LAT: " + position.getLatitudeE6());
-			Log.d("MapUpdater","LONG: " + position.getLongitudeE6());
-			
-			mapView.getController().animateTo(position);
-		} else {
-			Log.d("MapUpdater","Position is null!");
-		}
-		
+	public void update() {
+		gpsExtractor.extractData();
+		mapView.getController().animateTo(planeOverlay.getGeoPointPosition());
 	}
 
 	private void changeOnlineStatus(boolean connected) {
@@ -99,16 +95,7 @@ public class MapUpdater extends TimerTask {
 	
 	@Override
 	public void run() {
-		try {
-			if (flightGearConnector.isConnected()) {
-				this.update();
-				changeOnlineStatus(true);
-			} else {
-				flightGearConnector.connect();
-			}
-		} catch (IOException e) {
-			changeOnlineStatus(false);
-		}
+		this.update();
 	}
 	
 }
