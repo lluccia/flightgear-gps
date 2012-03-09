@@ -7,6 +7,7 @@
         <EditTextPreference
             android:dialogMessage="IP address of FlighGear"
             android:dialogTitle="FlightGear IP"
+            android:defaultValue="192.168.1.100"
             android:key="flightgear_ip"
             android:persistent="true"
             android:summary="Sets the IP address of FlighGear application"

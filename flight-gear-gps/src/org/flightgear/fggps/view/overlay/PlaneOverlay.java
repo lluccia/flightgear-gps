@@ -1,4 +1,4 @@
-package org.flightgear.fggps.overlays;
+package org.flightgear.fggps.view.overlay;
 
 import org.flightgear.fggps.R;
 import org.flightgear.fggps.gps.GPS;

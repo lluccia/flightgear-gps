@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:keepScreenOn="true"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/textQuery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Query"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <EditText
+        android:id="@+id/inputQuery"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text" />
+
+    <TextView
+        android:id="@+id/textType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Type"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Spinner
+        android:id="@+id/spinnerType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/waypoint_types" />
+
+  
+        <Button
+            android:id="@+id/buttonNearest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nearest" />
+
+        <CheckBox
+            android:id="@+id/searchByName"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="by Name" />
+
+        <Button
+            android:id="@+id/buttonSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search" />
+
+
+    <ListView
+        android:id="@+id/listResults"
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="0.17" >
+    </ListView>
+
+    <Button
+        android:id="@+id/buttonDTO"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="DTO" />
+
+</LinearLayout>

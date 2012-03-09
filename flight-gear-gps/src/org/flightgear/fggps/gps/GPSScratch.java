@@ -3,7 +3,7 @@ package org.flightgear.fggps.gps;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flightgear.fggps.connection.FlightGearConnector;
+import org.flightgear.fggps.connection.FGFSConnectionManager;
 
 import com.google.android.maps.GeoPoint;
 
@@ -15,7 +15,7 @@ import com.google.android.maps.GeoPoint;
  */
 public class GPSScratch {
 
-	private FlightGearConnector fgConnector;
+	private FGFSConnectionManager fgConnector;
 
 	private static final String PROPERTY_PATH_SCRATCH = "instrumentation/gps/scratch/";
 	private static final String PROPERTY_PATH_COMMAND = "instrumentation/gps/command/";
@@ -34,7 +34,7 @@ public class GPSScratch {
 	private static final String COMMAND_ROUTE_INSERT_AFTER = "route-insert-after";
 	private static final String COMMAND_ROUTE_DELETE = "route-delete";
 
-	public GPSScratch(FlightGearConnector fgConnector) {
+	public GPSScratch(FGFSConnectionManager fgConnector) {
 		super();
 		this.fgConnector = fgConnector;
 	}
@@ -51,20 +51,25 @@ public class GPSScratch {
 		execute(COMMAND_DIRECT);
 	}
 
+	public void setPosition(GeoPoint geopoint) {
+		setProperty("latitude-deg", Double.toString((double)geopoint.getLatitudeE6() / 1E6));
+		setProperty("longitude-deg", Double.toString((double)geopoint.getLongitudeE6() / 1E6));
+	}
+	
 	/**
 	 * Search waypoints nearest to the current waypoint in scratch
 	 * 
 	 * @param type
-	 *            of waypoint
+	 *            of waypoint (any, airport, vor, ndb, fix, wpt)
 	 * @param maxResults
 	 *            the query will return (Integer)
 	 * @return @
 	 */
-	public List<Waypoint> nearest(WaypointType type, Integer maxResults) {
+	public List<Waypoint> nearest(String type, Integer maxResults) {
 
 		List<Waypoint> waypoints = new ArrayList<Waypoint>();
 
-		setProperty("type", type.toString());
+		setProperty("type", type);
 		setPropertyInt("max-results", maxResults);
 
 		execute(COMMAND_NEAREST);
@@ -85,31 +90,26 @@ public class GPSScratch {
 	 * @param maxResults
 	 * @return @
 	 */
-	public List<Waypoint> search(WaypointType type, String query,
+	public List<Waypoint> search(String type, String query,
 			Boolean exactMatch) {
 
-		List<Waypoint> waypoints = new ArrayList<Waypoint>();
-
-		setProperty("type", type.toString());
+		setProperty("type", type);
 		setProperty("query", query);
 		setPropertyBoolean("exactMatch", exactMatch);
 
 		execute(COMMAND_SEARCH);
 
-		for (int i = 0; i < getPropertyInt("result-count"); i++) {
-			waypoints.add(getCurrentWaypoint());
-			next();
-		}
-
-		return waypoints;
+		return getResults();
 	}
 
-	public void searchByName(WaypointType type, String query, Boolean exactMatch) {
-		setProperty("type", type.toString());
+	public List<Waypoint> searchByName(String type, String query, Boolean exactMatch) {
+		setProperty("type", type);
 		setProperty("query", query);
 		setPropertyBoolean("exactMatch", exactMatch);
 
 		execute(COMMAND_SEARCH_NAME);
+		
+		return getResults();
 	}
 
 	private void previous() {
@@ -167,5 +167,13 @@ public class GPSScratch {
 
 	private void execute(String command) {
 		fgConnector.set(PROPERTY_PATH_COMMAND, command);
+	}
+	private List<Waypoint> getResults() {
+		List<Waypoint> waypoints = new ArrayList<Waypoint>();
+		for (int i = 0; i < getPropertyInt("result-count"); i++) {
+			waypoints.add(getCurrentWaypoint());
+			next();
+		}
+		return waypoints;
 	}
 }

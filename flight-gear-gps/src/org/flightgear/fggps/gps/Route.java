@@ -13,8 +13,18 @@ public class Route {
 	
 	Waypoint currentWaypoint;
 	
-	List<Waypoint> waypoints;
+	Waypoint startWaypoint;
 	
+	List<Waypoint> waypoints = new ArrayList<Waypoint>();
+	
+	public Waypoint getStartWaypoint() {
+		return startWaypoint;
+	}
+
+	public void setStartWaypoint(Waypoint startWaypoint) {
+		this.startWaypoint = startWaypoint;
+	}
+
 	public void addWaypoint(Waypoint waypoint) {
 		waypoints.add(waypoint);
 	}
@@ -55,5 +65,8 @@ public class Route {
 		
 		return activeLeg;
 	}
-	
+
+	public void clearWaypoints() {
+		waypoints.clear();
+	}
 }

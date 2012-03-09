@@ -1,20 +1,20 @@
 package org.flightgear.fggps.extractor;
 
-import org.flightgear.fggps.connection.FlightGearConnector;
+import org.flightgear.fggps.connection.FGFSConnectionManager;
 
 /**
- * Abstract class representing data that can be extracted from game properties
+ * Abstract class representing a data object that can be extracted from game properties
  * @author leandro
  *
- * @param <T>
+ * @param <T> The type of data object
  */
 public abstract class Extractor<T> {
 	
-	private FlightGearConnector fgConnector;
+	private FGFSConnectionManager fgConnector;
 	
 	private T dataObject;
 	
-	public Extractor(FlightGearConnector fgConnector, T dataObject) {
+	public Extractor(FGFSConnectionManager fgConnector, T dataObject) {
 		this.fgConnector = fgConnector;
 		this.dataObject = dataObject;
 	}
@@ -25,5 +25,5 @@ public abstract class Extractor<T> {
 		}
 	}
 	
-	public abstract void extractData(FlightGearConnector fgConnector, T dataObject);
+	public abstract void extractData(FGFSConnectionManager fgConnector, T dataObject);
 }

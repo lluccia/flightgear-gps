@@ -5,11 +5,14 @@
 package org.flightgear.fggps.connection;
 
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
-
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A connection to a running instance of FlightGear.
@@ -170,6 +173,23 @@ public class FGFSConnection {
 	public synchronized void set(String name, String value) throws IOException {
 		out.println("set " + name + ' ' + value + '\r');
 	}
+	
+	/**
+	 * Return 
+	 * @param path
+	 *            The FlightGear property path to dump.
+	 * @return Map<String,String> containing property/value of the path
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 */
+	public synchronized Map<String,String> dump(String path) throws IOException,
+			IllegalArgumentException {
+		out.println("dump " + path + '\r');
+		
+		String parseDump = parseDump();
+		
+		return extractProperties(parseDump);
+	}
 
 	// //////////////////////////////////////////////////////////////////
 	// Derived getters and setters.
@@ -308,6 +328,59 @@ public class FGFSConnection {
 	private BufferedReader in;
 	private PrintWriter out;
 
+	/**
+	 * Read XML data from buffer
+	 * 
+	 * @param ignoreLF
+	 * @return
+	 * @throws IOException
+	 */
+	private synchronized String parseDump() throws IOException,
+			IllegalArgumentException {
+
+		StringBuilder output = new StringBuilder();
+		output.append(in.readLine());
+
+		if (!output.toString().startsWith("<?xml")) {
+			throw new IllegalArgumentException("Property path not found: "
+					+ output.toString());
+		}
+
+		String currentLine;
+
+		do {
+			currentLine = in.readLine();
+			output.append(currentLine.trim());
+		} while (!currentLine.equals("</PropertyList>"));
+
+		// discard last blank line
+		in.readLine();
+
+		return output.toString();
+	}
+
+	/**
+	 * Extracts properties from a xml dump string
+	 * 
+	 * @param xmlDump
+	 *            xml returned by dump command
+	 * @return Map<String,String> map containing properties names/values
+	 */
+	public static Map<String, String> extractProperties(String xmlDump) {
+		
+		String regexPatternProperty = "<([\\w-]*) type=\"\\w*\">([^<]*)";
+
+		Pattern pattern = Pattern.compile(regexPatternProperty);
+		Matcher matcher = pattern.matcher(xmlDump);
+		
+		Map<String, String> properties = new HashMap<String, String>();
+		
+		while (matcher.find()) {
+			properties.put(matcher.group(1),matcher.group(2));
+		}
+
+		return properties;
+	}
 }
 
 // end of FGFSConnection.java

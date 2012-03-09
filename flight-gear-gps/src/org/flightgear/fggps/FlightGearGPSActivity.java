@@ -1,9 +1,13 @@
 package org.flightgear.fggps;
 
+import java.io.IOException;
 import java.util.Timer;
 
-import org.flightgear.fggps.connection.FlightGearConnector;
+import org.flightgear.fggps.connection.ConnectionTask;
+import org.flightgear.fggps.connection.FGFSConnectionManager;
 import org.flightgear.fggps.gps.GPS;
+import org.flightgear.fggps.gps.GPSScratch;
+import org.flightgear.fggps.gps.Route;
 import org.flightgear.fggps.updaters.MapUpdater;
 
 import android.content.Intent;
@@ -19,8 +23,16 @@ import com.google.android.maps.MapView;
 
 public class FlightGearGPSActivity extends MapActivity {
 
+	private FGFSConnectionManager fgfsConnectionManager;
+	
+	public static GPS gps;
+	
+	public static GPSScratch gpsScratch;
+
 	private SharedPreferences preferences;
 
+	//private RotateView rotateView;
+	
 	private MapView mapView;
 
 	/** Timer responsible for the running the updater tasks */
@@ -32,11 +44,12 @@ public class FlightGearGPSActivity extends MapActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.gps);
-
+		
+		setContentView(R.layout.gps_layout);
+		
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-		String flightGearIP = preferences.getString("flightgear_ip", "");
+		String flightGearIP = preferences.getString("flightgear_ip", "192.168.1.100");
 		String flightGearPort = preferences.getString("flightgear_port", "9000");
 
 		mapView = (MapView) findViewById(R.id.mapview);
@@ -44,19 +57,27 @@ public class FlightGearGPSActivity extends MapActivity {
 		mapView.setStreetView(false);
 		mapView.setSatellite(true);
 		mapView.setKeepScreenOn(true);
-		
-		
-		FlightGearConnector flightGearConnector = new FlightGearConnector(
+		mapView.setClickable(true);
+		new FGFSConnectionManager(
 				flightGearIP, Integer.valueOf(flightGearPort));
 		
-		flightGearConnector.connect();
+		fgfsConnectionManager = new FGFSConnectionManager(
+				flightGearIP, Integer.valueOf(flightGearPort));
 		
-		this.mapUpdater = new MapUpdater(mapView, flightGearConnector,
-				this.getResources(), new GPS());
+		gpsScratch = new GPSScratch(fgfsConnectionManager);
+		
+		gps = new GPS();
+		
+		this.mapUpdater = new MapUpdater(mapView, fgfsConnectionManager,
+				this.getResources(), gps, new Route());
 
+		ConnectionTask connectionTask = new ConnectionTask(fgfsConnectionManager);
+		
+		
 		// set timer task to update map periodically
 		this.timer = new Timer("update-timer");
-		timer.scheduleAtFixedRate(mapUpdater, 0, MapUpdater.UPDATE_INTERVAL_MS);
+		timer.scheduleAtFixedRate(connectionTask, 0, ConnectionTask.INTERVAL_MS);
+		timer.scheduleAtFixedRate(mapUpdater, 5000, MapUpdater.UPDATE_INTERVAL_MS);
 		
 	}
 
@@ -65,7 +86,18 @@ public class FlightGearGPSActivity extends MapActivity {
 		return false;
 	}
 
-	@Override
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+			fgfsConnectionManager.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+
+    @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.menu, menu);
@@ -76,10 +108,16 @@ public class FlightGearGPSActivity extends MapActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection
 		switch (item.getItemId()) {
-		case R.id.preferences:
+		case R.id.menu_preferences:
 			Intent settingsActivity = new Intent(getBaseContext(),
 					PreferencesActivity.class);
 			startActivity(settingsActivity);
+			return true;
+		case R.id.menu_search:
+			Intent searchActivity = new Intent(getBaseContext(),
+					SearchActivity.class);
+			
+			startActivity(searchActivity);
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);

@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Flightgear GPS</string>
+    <string-array name="waypoint_types">
+		<item>airport</item>
+		<item>vor</item>
+		<item>ndb</item>
+		<item>fix</item>
+		<item>wpt</item>
+    </string-array>
 </resources>
