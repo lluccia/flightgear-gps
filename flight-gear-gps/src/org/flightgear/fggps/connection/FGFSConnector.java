@@ -5,7 +5,7 @@ import java.util.Map;
 
 import android.util.Log;
 
-public class FGFSConnectionManager {
+public class FGFSConnector {
 
 	private String serverIP;
 	
@@ -17,7 +17,7 @@ public class FGFSConnectionManager {
 	
 	private boolean connected = false;
 	
-	public FGFSConnectionManager(String serverIP, int serverPort) {
+	public FGFSConnector(String serverIP, int serverPort) {
 		this.serverIP = serverIP;
 		this.serverPort = serverPort;
 	}

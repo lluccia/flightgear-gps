@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="TextWithShadow">
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingLeft">2dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:paddingRight">2dp</item>
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:shadowColor">#000000</item>
+        <item name="android:shadowDx">4</item>
+        <item name="android:shadowDy">4</item>
+        <item name="android:shadowRadius">1</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextBox">
+        <item name="android:background">#AA000000</item>
+    </style>
+
+</resources>

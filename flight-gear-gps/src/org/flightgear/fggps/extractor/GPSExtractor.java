@@ -3,34 +3,37 @@ package org.flightgear.fggps.extractor;
 import java.io.IOException;
 import java.util.Map;
 
-import org.flightgear.fggps.connection.FGFSConnectionManager;
+import org.flightgear.fggps.connection.FGFSConnector;
 import org.flightgear.fggps.gps.GPS;
-import org.flightgear.fggps.gps.GPSMode;
 
 public class GPSExtractor extends Extractor<GPS> {
 
-	public GPSExtractor(FGFSConnectionManager fgConnector, GPS gps) {
+	public GPSExtractor(FGFSConnector fgConnector, GPS gps) {
 		super(fgConnector, gps);
 	}
 
 	@Override
-	public void extractData(FGFSConnectionManager fgConnector, GPS gps) {
-			Map<String, String> gpsData;
+	public void extractData(FGFSConnector fgfsConnector, GPS gps) {
+			Map<String, String> positionData;
+			Map<String, String> orientationData;
 			try {
-				gpsData = fgConnector.dump("/position");
+				positionData = fgfsConnector.dump("/position");
+				orientationData = fgfsConnector.dump("/orientation");
 				
-				if (dumpIsValid(gpsData)) {
-					gps.setLatitude(Double.valueOf(gpsData.get("latitude-deg")));
-					gps.setLongitude(Double.valueOf(gpsData.get("longitude-deg")));
+				if (dumpIsValid(positionData, orientationData)) {
+					gps.setLatitude(Double.valueOf(positionData.get("latitude-deg")));
+					gps.setLongitude(Double.valueOf(positionData.get("longitude-deg")));
 					
-					gps.setAltitude(Float.valueOf(gpsData.get("altitude-ft")));
-					//gps.setHeading(Float.valueOf(gpsData.get("indicated-track-true-deg")));
-					//gps.setGroundspeed(Float.valueOf(gpsData.get("indicated-ground-speed-kt")));
+					gps.setAltitude(Float.valueOf(positionData.get("altitude-ft")).intValue());
+					
+					gps.setHeading(Float.valueOf(orientationData.get("heading-deg")));
+					
+					gps.setGroundspeed(fgfsConnector.getFloat("/velocities/groundspeed-kt").intValue());
 				
-					//gps.setTrack(Float.valueOf(gpsData.get("indicated-track-true-deg")));
-					//gps.setDesiredTrack(Float.valueOf(gpsData.get("desired-course-deg")));
+					//gps.setTrack(Float.valueOf(..));
+					//gps.setDesiredTrack(Float.valueOf(..));
 				
-					//gps.setMode(GPSMode.valueOf(gpsData.get("mode").toUpperCase()));
+					//gps.setMode(GPSMode.valueOf(..));
 				}
 			} catch (IllegalArgumentException e) {
 				// TODO Auto-generated catch block
@@ -43,11 +46,14 @@ public class GPSExtractor extends Extractor<GPS> {
 			
 	}
 
-	private boolean dumpIsValid(Map<String, String> gpsData) {
+	private boolean dumpIsValid(Map<String, String> gpsData, Map<String, String> orientationData) {
 		return (gpsData.size() > 0 
 				&& gpsData.get("latitude-deg") != null && gpsData.get("latitude-deg") != ""
 				&& gpsData.get("longitude-deg") != null && gpsData.get("longitude-deg") != ""
-				&& gpsData.get("altitude-ft") != null && gpsData.get("altitude-ft") != "");
+				&& gpsData.get("altitude-ft") != null && gpsData.get("altitude-ft") != "")
+			&&
+				(orientationData.size() > 0 
+						&& orientationData.get("heading-deg") != null && orientationData.get("latitude-deg") != "");
 	}
 
 }

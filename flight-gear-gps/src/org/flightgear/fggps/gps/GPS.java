@@ -1,5 +1,7 @@
 package org.flightgear.fggps.gps;
 
+import android.R.string;
+
 import com.google.android.maps.GeoPoint;
 
 
@@ -9,9 +11,9 @@ public class GPS {
 	
 	private double longitude;
 
-	private float groundspeed;
+	private int groundspeed;
 	
-	private float altitude;
+	private int altitude;
 	
 	private float heading;
 
@@ -43,19 +45,19 @@ public class GPS {
 		this.longitude = longitude;
 	}
 
-	public float getGroundspeed() {
+	public int getGroundspeed() {
 		return groundspeed;
 	}
 
-	public void setGroundspeed(float groundspeed) {
+	public void setGroundspeed(int groundspeed) {
 		this.groundspeed = groundspeed;
 	}
 
-	public float getAltitude() {
+	public int getAltitude() {
 		return altitude;
 	}
 
-	public void setAltitude(float altitude) {
+	public void setAltitude(int altitude) {
 		this.altitude = altitude;
 	}
 
@@ -111,5 +113,13 @@ public class GPS {
 		return new GeoPoint(
 				((int) (this.latitude*1e6)),
 				((int) (this.longitude*1e6)));
+	}
+
+	public String getFormattedGroundspeed() {
+		return String.valueOf(groundspeed) + " kt";
+	}
+
+	public CharSequence getFormattedAltitude() {
+		return String.valueOf(altitude) + " ft";
 	}
 }

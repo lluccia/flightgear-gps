@@ -16,9 +16,9 @@ public class ConnectionTask extends TimerTask {
 	/** Time between task executions */
 	public final static long INTERVAL_MS = 5000;
 
-	private FGFSConnectionManager fgfsConnectionManager;
+	private FGFSConnector fgfsConnectionManager;
 	
-	public ConnectionTask(FGFSConnectionManager fgfsConnectionManager) {
+	public ConnectionTask(FGFSConnector fgfsConnectionManager) {
 		this.fgfsConnectionManager = fgfsConnectionManager;
 	}
 	

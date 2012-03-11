@@ -50,13 +50,12 @@
             android:layout_height="wrap_content"
             android:text="Search" />
 
-
     <ListView
         android:id="@+id/listResults"
         android:layout_width="fill_parent"
         android:layout_height="0dip"
-        android:layout_weight="0.17" >
-    </ListView>
+        android:layout_weight="0.17" 
+        android:choiceMode="singleChoice" />
 
     <Button
         android:id="@+id/buttonDTO"

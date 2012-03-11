@@ -8,7 +8,11 @@ import org.flightgear.fggps.gps.GPSScratch;
 import org.flightgear.fggps.gps.Waypoint;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
@@ -33,9 +37,9 @@ public class SearchActivity extends Activity implements OnClickListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		this.setContentView(R.layout.search_layout);
-
+		
+		setContentView(R.layout.search_layout);
+		
 		Button button = (Button) findViewById(R.id.buttonNearest);
 		button.setOnClickListener(this);
 
@@ -54,45 +58,105 @@ public class SearchActivity extends Activity implements OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		Spinner spinnerType = (Spinner) findViewById(R.id.spinnerType);
-		
+		final Spinner spinnerType = (Spinner) findViewById(R.id.spinnerType);
+		final ProgressDialog dialog;
+
 		switch (v.getId()) {
 		case R.id.buttonNearest:
 
-			gpsScratch.setPosition(gps.getGeoPointPosition());
+			dialog = ProgressDialog.show(SearchActivity.this, "",
+					"Searching. Please wait...", true);
 
-			List<Waypoint> nearest = gpsScratch.nearest(
-					(String) spinnerType.getSelectedItem(), MAX_RESULTS);
+			new Thread() {
+				public void run() {
+					try {
+						gpsScratch.setPosition(gps.getGeoPointPosition());
 
-			queryResults.clear();
-			queryResults.addAll(nearest);
+						List<Waypoint> nearest = gpsScratch.nearest(
+								(String) spinnerType.getSelectedItem(),
+								MAX_RESULTS);
 
-			waypointsListAdapter.notifyDataSetChanged();
+						queryResults.clear();
+						queryResults.addAll(nearest);
+						waypointsListAdapter.notifyDataSetChanged();
+					} catch (Exception e) {
+						Log.e("SearchActivity", e.getMessage());
+					}
+					handler.sendEmptyMessage(0);
+				}
+
+				private Handler handler = new Handler() {
+
+					@Override
+					public void handleMessage(Message msg) {
+						waypointsListAdapter.notifyDataSetChanged();
+						dialog.dismiss();
+					}
+				};
+
+			}.start();
 
 			break;
 
 		case R.id.buttonSearch:
+
+			dialog = ProgressDialog.show(SearchActivity.this, "",
+					"Searching. Please wait...", true);
+
+			new Thread() {
+				public void run() {
+					try {
+						EditText inputQuery = (EditText) findViewById(R.id.inputQuery);
+						CheckBox searchByName = (CheckBox) findViewById(R.id.searchByName);
+
+						gpsScratch.setPosition(gps.getGeoPointPosition());
+
+						List<Waypoint> results;
+
+						if (searchByName.isChecked()) {
+							results = gpsScratch.searchByName(
+									(String) spinnerType.getSelectedItem(),
+									inputQuery.getText().toString(), false);
+						} else {
+							results = gpsScratch.search(
+									(String) spinnerType.getSelectedItem(),
+									inputQuery.getText().toString(), true);
+						}
+
+						queryResults.clear();
+						queryResults.addAll(results);
+
+					} catch (Exception e) {
+						Log.e("SearchActivity", e.getMessage());
+					}
+					handler.sendEmptyMessage(0);
+				}
+
+				private Handler handler = new Handler() {
+
+					@Override
+					public void handleMessage(Message msg) {
+						waypointsListAdapter.notifyDataSetChanged();
+						dialog.dismiss();
+					}
+				};
+
+			}.start();
+
+			break;
+
+		case R.id.buttonDTO:
+
+			ListView listResults = (ListView) findViewById(R.id.listResults);
+			//Waypoint selectedItem = (Waypoint) listResults.getSelectedItem();
+			Waypoint selectedItem = (Waypoint) listResults.getItemAtPosition(0); //TODO - remove. just for test
 			
-			EditText inputQuery = (EditText) findViewById(R.id.inputQuery);
-			CheckBox searchByName = (CheckBox) findViewById(R.id.searchByName);
-
-			gpsScratch.setPosition(gps.getGeoPointPosition());
-
-			List<Waypoint> results;
-
-			if (searchByName.isChecked()) {
-				results = gpsScratch.searchByName((String) spinnerType
-						.getSelectedItem(), inputQuery.getText().toString(),
-						true);
-			} else {
-				results = gpsScratch.search((String) spinnerType
-						.getSelectedItem(), inputQuery.getText().toString(),
-						true);
+			if (selectedItem != null) {
+				gpsScratch.setPosition(selectedItem.getGeoPoint());
+				gpsScratch.direct();
 			}
-
-			queryResults.clear();
-			queryResults.addAll(results);
-			waypointsListAdapter.notifyDataSetChanged();
+			
+			break;
 		default:
 			break;
 		}

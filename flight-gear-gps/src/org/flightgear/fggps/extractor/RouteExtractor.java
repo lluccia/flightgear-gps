@@ -1,6 +1,6 @@
 package org.flightgear.fggps.extractor;
 
-import org.flightgear.fggps.connection.FGFSConnectionManager;
+import org.flightgear.fggps.connection.FGFSConnector;
 import org.flightgear.fggps.gps.Route;
 import org.flightgear.fggps.gps.Waypoint;
 
@@ -8,12 +8,12 @@ import com.google.android.maps.GeoPoint;
 
 public class RouteExtractor extends Extractor<Route> {
 
-	public RouteExtractor(FGFSConnectionManager fgConnector, Route route) {
+	public RouteExtractor(FGFSConnector fgConnector, Route route) {
 		super(fgConnector, route);
 	}
 
 	@Override
-	public void extractData(FGFSConnectionManager fgConnector, Route route) {
+	public void extractData(FGFSConnector fgConnector, Route route) {
 		
 		route.clearWaypoints();
 		

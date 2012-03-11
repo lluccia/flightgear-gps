@@ -3,7 +3,7 @@ package org.flightgear.fggps.gps;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flightgear.fggps.connection.FGFSConnectionManager;
+import org.flightgear.fggps.connection.FGFSConnector;
 
 import com.google.android.maps.GeoPoint;
 
@@ -15,7 +15,7 @@ import com.google.android.maps.GeoPoint;
  */
 public class GPSScratch {
 
-	private FGFSConnectionManager fgConnector;
+	private FGFSConnector fgConnector;
 
 	private static final String PROPERTY_PATH_SCRATCH = "instrumentation/gps/scratch/";
 	private static final String PROPERTY_PATH_COMMAND = "instrumentation/gps/command/";
@@ -25,7 +25,7 @@ public class GPSScratch {
 	private static final String COMMAND_DIRECT = "direct";
 	private static final String COMMAND_NEAREST = "nearest";
 	private static final String COMMAND_SEARCH = "search";
-	private static final String COMMAND_SEARCH_NAME = "search-name";
+	private static final String COMMAND_SEARCH_NAMES = "search-names";
 	private static final String COMMAND_LOAD_ROUTE_WPT = "load-route-wpt";
 	private static final String COMMAND_NEXT = "next";
 	private static final String COMMAND_PREVIOUS = "previous";
@@ -34,7 +34,7 @@ public class GPSScratch {
 	private static final String COMMAND_ROUTE_INSERT_AFTER = "route-insert-after";
 	private static final String COMMAND_ROUTE_DELETE = "route-delete";
 
-	public GPSScratch(FGFSConnectionManager fgConnector) {
+	public GPSScratch(FGFSConnector fgConnector) {
 		super();
 		this.fgConnector = fgConnector;
 	}
@@ -52,10 +52,19 @@ public class GPSScratch {
 	}
 
 	public void setPosition(GeoPoint geopoint) {
-		setProperty("latitude-deg", Double.toString((double)geopoint.getLatitudeE6() / 1E6));
-		setProperty("longitude-deg", Double.toString((double)geopoint.getLongitudeE6() / 1E6));
+		setProperty("latitude-deg",
+				Double.toString((double) geopoint.getLatitudeE6() / 1E6));
+		setProperty("longitude-deg",
+				Double.toString((double) geopoint.getLongitudeE6() / 1E6));
 	}
 	
+	public void setCurrentWaypoint(GeoPoint geopoint) {
+		setProperty("wp/wp/latitude-deg",
+				Double.toString((double) geopoint.getLatitudeE6() / 1E6));
+		setProperty("wp/wp/longitude-deg",
+				Double.toString((double) geopoint.getLongitudeE6() / 1E6));
+	}
+
 	/**
 	 * Search waypoints nearest to the current waypoint in scratch
 	 * 
@@ -63,23 +72,15 @@ public class GPSScratch {
 	 *            of waypoint (any, airport, vor, ndb, fix, wpt)
 	 * @param maxResults
 	 *            the query will return (Integer)
-	 * @return @
 	 */
 	public List<Waypoint> nearest(String type, Integer maxResults) {
-
-		List<Waypoint> waypoints = new ArrayList<Waypoint>();
 
 		setProperty("type", type);
 		setPropertyInt("max-results", maxResults);
 
 		execute(COMMAND_NEAREST);
 
-		for (int i = 0; i < getPropertyInt("result-count"); i++) {
-			waypoints.add(getCurrentWaypoint());
-			next();
-		}
-
-		return waypoints;
+		return getResults();
 	}
 
 	/**
@@ -88,27 +89,25 @@ public class GPSScratch {
 	 * @param type
 	 *            NavigationAidType
 	 * @param maxResults
-	 * @return @
 	 */
-	public List<Waypoint> search(String type, String query,
-			Boolean exactMatch) {
+	public List<Waypoint> search(String type, String query, Boolean exact) {
 
 		setProperty("type", type);
 		setProperty("query", query);
-		setPropertyBoolean("exactMatch", exactMatch);
+		setPropertyBoolean("exact", exact);
 
 		execute(COMMAND_SEARCH);
 
 		return getResults();
 	}
 
-	public List<Waypoint> searchByName(String type, String query, Boolean exactMatch) {
+	public List<Waypoint> searchByName(String type, String query, Boolean exact) {
 		setProperty("type", type);
 		setProperty("query", query);
-		setPropertyBoolean("exactMatch", exactMatch);
+		setPropertyBoolean("exact", exact);
 
-		execute(COMMAND_SEARCH_NAME);
-		
+		execute(COMMAND_SEARCH_NAMES);
+
 		return getResults();
 	}
 
@@ -168,6 +167,7 @@ public class GPSScratch {
 	private void execute(String command) {
 		fgConnector.set(PROPERTY_PATH_COMMAND, command);
 	}
+
 	private List<Waypoint> getResults() {
 		List<Waypoint> waypoints = new ArrayList<Waypoint>();
 		for (int i = 0; i < getPropertyInt("result-count"); i++) {

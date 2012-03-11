@@ -1,6 +1,6 @@
 package org.flightgear.fggps.extractor;
 
-import org.flightgear.fggps.connection.FGFSConnectionManager;
+import org.flightgear.fggps.connection.FGFSConnector;
 
 /**
  * Abstract class representing a data object that can be extracted from game properties
@@ -10,11 +10,11 @@ import org.flightgear.fggps.connection.FGFSConnectionManager;
  */
 public abstract class Extractor<T> {
 	
-	private FGFSConnectionManager fgConnector;
+	private FGFSConnector fgConnector;
 	
 	private T dataObject;
 	
-	public Extractor(FGFSConnectionManager fgConnector, T dataObject) {
+	public Extractor(FGFSConnector fgConnector, T dataObject) {
 		this.fgConnector = fgConnector;
 		this.dataObject = dataObject;
 	}
@@ -25,5 +25,5 @@ public abstract class Extractor<T> {
 		}
 	}
 	
-	public abstract void extractData(FGFSConnectionManager fgConnector, T dataObject);
+	public abstract void extractData(FGFSConnector fgConnector, T dataObject);
 }
