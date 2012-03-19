@@ -2,6 +2,8 @@ package org.flightgear.fggps;
 
 import java.io.IOException;
 import java.util.Timer;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.flightgear.fggps.connection.ConnectionTask;
 import org.flightgear.fggps.connection.FGFSConnector;
@@ -39,11 +41,17 @@ public class FlightGearGPSActivity extends MapActivity {
 	private MapView mapView;
 
 	/** Timer responsible for the running the updater tasks */
-	private Timer timer;
+	// private Timer timer;
 
 	/** Task responsible for updating the map drawings */
 	private MapUpdater mapUpdater;
 
+	/** Task responsible for managing the connection with Flightgear */
+	private ConnectionTask connectionTask;
+
+	private ScheduledThreadPoolExecutor scheduler;
+
+	/** Handler to allow external activities to update the view */
 	private Handler updateHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -82,14 +90,16 @@ public class FlightGearGPSActivity extends MapActivity {
 		this.mapUpdater = new MapUpdater(mapView, fgfsConnectionManager,
 				this.getResources(), gps, new Route(), updateHandler);
 
-		ConnectionTask connectionTask = new ConnectionTask(
-				fgfsConnectionManager);
+		this.connectionTask = new ConnectionTask(fgfsConnectionManager);
+		
+	}
 
-		// set timer task to update map periodically
-		this.timer = new Timer("update-timer");
-		timer.scheduleAtFixedRate(connectionTask, 0, ConnectionTask.INTERVAL_MS);
-		timer.scheduleAtFixedRate(mapUpdater, 0, MapUpdater.UPDATE_INTERVAL_MS);
-
+	private void scheduleTimers() {
+		this.scheduler = new ScheduledThreadPoolExecutor(5);
+		scheduler.scheduleAtFixedRate(connectionTask, 0,
+				ConnectionTask.INTERVAL_MS, TimeUnit.MILLISECONDS);
+		scheduler.scheduleAtFixedRate(mapUpdater, 0,
+				MapUpdater.UPDATE_INTERVAL_MS, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
@@ -98,10 +108,23 @@ public class FlightGearGPSActivity extends MapActivity {
 	}
 
 	@Override
+	protected void onPause() {
+		super.onPause();
+		scheduler.shutdown();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		scheduleTimers();
+	}
+
+	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		try {
 			fgfsConnectionManager.close();
+			scheduler.shutdown();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -136,11 +159,11 @@ public class FlightGearGPSActivity extends MapActivity {
 	}
 
 	public void updateTextView() {
-		TextView textgroundspeed = (TextView) findViewById(R.id.groundspeedKt);
-		TextView textaltitudeFt = (TextView) findViewById(R.id.altitudeFt);
+		TextView textGroundSpeed = (TextView) findViewById(R.id.groundspeedKt);
+		TextView textAltitudeFt = (TextView) findViewById(R.id.altitudeFt);
 
-		textgroundspeed.setText(gps.getFormattedGroundspeed());
-		textaltitudeFt.setText(gps.getFormattedAltitude());
+		textGroundSpeed.setText(gps.getFormattedGroundspeed());
+		textAltitudeFt.setText(gps.getFormattedAltitude());
 
 	}
 

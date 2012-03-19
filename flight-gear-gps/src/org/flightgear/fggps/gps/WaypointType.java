@@ -8,15 +8,14 @@ public enum WaypointType {
 	FIX("fix"),
 	WPT("wpt");
 	
-	private String type;
+	private String queryString;
 
-	WaypointType(String type) {
-		this.type=type;
+	WaypointType(String queryString) {
+		this.queryString=queryString;
 	}
 	
-	@Override
-	public String toString() {
-		return type;
+	public String getQueryString() {
+		return queryString;
 	}
 	
 }

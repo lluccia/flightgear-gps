@@ -47,7 +47,8 @@ public class GPSScratch {
 		execute(COMMAND_OBS);
 	}
 
-	public void direct() {
+	public void direct(Waypoint waypoint) {
+		search(waypoint.getType().getQueryString(), waypoint.getIdent(), true);
 		execute(COMMAND_DIRECT);
 	}
 
@@ -129,6 +130,8 @@ public class GPSScratch {
 
 		waypoint.setIdent(getProperty("ident"));
 		waypoint.setName(getProperty("name"));
+		waypoint.setType(WaypointType.valueOf(getProperty("type").toUpperCase()));
+		
 		waypoint.setGeoPoint(new GeoPoint(
 				(int) (getPropertyDouble("latitude-deg") * 1e6),
 				(int) (getPropertyDouble("longitude-deg") * 1e6)));

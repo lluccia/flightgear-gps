@@ -16,6 +16,8 @@ public class Waypoint {
 	
 	private String name;
 	
+	private WaypointType type;
+	
 	private GeoPoint geoPoint;
 
 	public String getIdent() {
@@ -30,6 +32,14 @@ public class Waypoint {
 		return name;
 	}
 
+	public WaypointType getType() {
+		return type;
+	}
+
+	public void setType(WaypointType type) {
+		this.type = type;
+	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -40,11 +50,6 @@ public class Waypoint {
 
 	public void setGeoPoint(GeoPoint geoPoint) {
 		this.geoPoint = geoPoint;
-	}
-
-	@Override
-	public String toString() {
-		return ident + ": " + name;
 	}
 
 	public static List<Waypoint> getDummyList() {
@@ -67,6 +72,11 @@ public class Waypoint {
 		waypoints.add(wp);
 		
 		return waypoints;
+	}
+
+	@Override
+	public String toString() {
+		return ident + ": " + name;
 	}
 	
 }

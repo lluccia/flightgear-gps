@@ -45,6 +45,9 @@ public class SearchActivity extends Activity implements OnClickListener {
 
 		button = (Button) findViewById(R.id.buttonSearch);
 		button.setOnClickListener(this);
+		
+		button = (Button) findViewById(R.id.buttonDTO);
+		button.setOnClickListener(this);
 
 		waypointsListAdapter = new ArrayAdapter<Waypoint>(
 				this.getApplicationContext(), R.layout.waypoint_lists_item,
@@ -149,13 +152,12 @@ public class SearchActivity extends Activity implements OnClickListener {
 
 			ListView listResults = (ListView) findViewById(R.id.listResults);
 			//Waypoint selectedItem = (Waypoint) listResults.getSelectedItem();
-			Waypoint selectedItem = (Waypoint) listResults.getItemAtPosition(0); //TODO - remove. just for test
+			Waypoint selectedItem = (Waypoint) listResults.getItemAtPosition(1); //TODO - remove. just for test
 			
 			if (selectedItem != null) {
-				gpsScratch.setPosition(selectedItem.getGeoPoint());
-				gpsScratch.direct();
+				gpsScratch.direct(selectedItem);
 			}
-			
+			this.finish();
 			break;
 		default:
 			break;
