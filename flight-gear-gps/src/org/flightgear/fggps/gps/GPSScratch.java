@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flightgear.fggps.connection.FGFSConnector;
-
-import com.google.android.maps.GeoPoint;
+import org.mapsforge.core.GeoPoint;
 
 /**
  * GPS controller class that interacts with FlightGear GPS internals
@@ -54,16 +53,16 @@ public class GPSScratch {
 
 	public void setPosition(GeoPoint geopoint) {
 		setProperty("latitude-deg",
-				Double.toString((double) geopoint.getLatitudeE6() / 1E6));
+				Double.toString(geopoint.getLatitude()));
 		setProperty("longitude-deg",
-				Double.toString((double) geopoint.getLongitudeE6() / 1E6));
+				Double.toString(geopoint.getLongitude()));
 	}
 	
 	public void setCurrentWaypoint(GeoPoint geopoint) {
 		setProperty("wp/wp/latitude-deg",
-				Double.toString((double) geopoint.getLatitudeE6() / 1E6));
+				Double.toString(geopoint.getLatitude()));
 		setProperty("wp/wp/longitude-deg",
-				Double.toString((double) geopoint.getLongitudeE6() / 1E6));
+				Double.toString(geopoint.getLongitude()));
 	}
 
 	/**

@@ -1,9 +1,6 @@
 package org.flightgear.fggps.gps;
 
-import android.R.string;
-
-import com.google.android.maps.GeoPoint;
-
+import org.mapsforge.core.GeoPoint;
 
 public class GPS {
 

@@ -7,7 +7,7 @@ import org.flightgear.fggps.gps.GPS;
 import org.flightgear.fggps.gps.GPSScratch;
 import org.flightgear.fggps.gps.Waypoint;
 
-import android.app.Activity;
+import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,7 +22,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 
-public class SearchActivity extends Activity implements OnClickListener {
+public class SearchActivity extends ListActivity implements OnClickListener {
 
 	private GPS gps = FlightGearGPSActivity.gps;
 
@@ -55,8 +55,12 @@ public class SearchActivity extends Activity implements OnClickListener {
 
 		waypointsListAdapter.setNotifyOnChange(true);
 
-		ListView listResults = (ListView) findViewById(R.id.listResults);
-		listResults.setAdapter(waypointsListAdapter);
+		//ListView list = (ListView) findViewById(R.id.list);
+		//list.setAdapter(waypointsListAdapter);
+		
+		setListAdapter(waypointsListAdapter);
+		
+		getListView().setItemsCanFocus(true);
 	}
 
 	@Override
@@ -149,10 +153,10 @@ public class SearchActivity extends Activity implements OnClickListener {
 			break;
 
 		case R.id.buttonDTO:
-
-			ListView listResults = (ListView) findViewById(R.id.listResults);
-			//Waypoint selectedItem = (Waypoint) listResults.getSelectedItem();
-			Waypoint selectedItem = (Waypoint) listResults.getItemAtPosition(1); //TODO - remove. just for test
+			
+			ListView list = getListView();
+			//Waypoint selectedItem = (Waypoint) list.getSelectedItem();
+			Waypoint selectedItem = (Waypoint) list.getItemAtPosition(1); //TODO - remove. just for test
 			
 			if (selectedItem != null) {
 				gpsScratch.direct(selectedItem);
@@ -164,4 +168,5 @@ public class SearchActivity extends Activity implements OnClickListener {
 		}
 
 	}
+	
 }

@@ -5,13 +5,11 @@
     android:keepScreenOn="true"
     android:orientation="vertical" >
 
-    <com.google.android.maps.MapView
+    <org.mapsforge.android.maps.MapView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/mapview"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:apiKey="046m-_AK777xqAQsZ31JotIVZ9En7OmgSmADlqQ"
-        android:clickable="true" />
+        android:layout_height="fill_parent" />
 
      <RelativeLayout
         android:id="@+id/infoBoxTop"

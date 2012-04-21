@@ -3,7 +3,6 @@ package org.flightgear.fggps.updaters;
 import java.util.List;
 import java.util.TimerTask;
 
-import org.flightgear.fggps.FlightGearGPSActivity;
 import org.flightgear.fggps.connection.FGFSConnector;
 import org.flightgear.fggps.extractor.GPSExtractor;
 import org.flightgear.fggps.extractor.RouteExtractor;
@@ -11,16 +10,15 @@ import org.flightgear.fggps.gps.GPS;
 import org.flightgear.fggps.gps.Route;
 import org.flightgear.fggps.view.overlay.PlaneOverlay;
 import org.flightgear.fggps.view.overlay.RouteOverlay;
+import org.mapsforge.android.maps.MapView;
+import org.mapsforge.android.maps.overlay.Overlay;
+import org.mapsforge.core.GeoPoint;
 
 import android.content.res.Resources;
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
-import android.widget.TextView;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapView;
-import com.google.android.maps.Overlay;
+
 
 /**
  * This class is responsible for updating the map data, including current
@@ -58,7 +56,7 @@ public class MapUpdater extends TimerTask {
 
 		GeoPoint homePosition = new GeoPoint(0, 0);
 
-		mapView.getController().animateTo(homePosition);
+		mapView.getController().setCenter(homePosition);
 
 		this.gpsExtractor = new GPSExtractor(fgConnector, gps);
 		this.routeExtractor = new RouteExtractor(fgConnector, route);
@@ -86,7 +84,7 @@ public class MapUpdater extends TimerTask {
 		
 		updateHandler.sendEmptyMessage(0);
 		
-		mapView.getController().animateTo(planeOverlay.getGeoPointPosition());
+		mapView.getController().setCenter(planeOverlay.getGeoPointPosition());
 	}
 
 	private void changeOnlineStatus(boolean connected) {

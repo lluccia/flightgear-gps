@@ -3,8 +3,7 @@ package org.flightgear.fggps.extractor;
 import org.flightgear.fggps.connection.FGFSConnector;
 import org.flightgear.fggps.gps.Route;
 import org.flightgear.fggps.gps.Waypoint;
-
-import com.google.android.maps.GeoPoint;
+import org.mapsforge.core.GeoPoint;
 
 public class RouteExtractor extends Extractor<Route> {
 

@@ -3,7 +3,7 @@ package org.flightgear.fggps.gps;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.android.maps.GeoPoint;
+import org.mapsforge.core.GeoPoint;
 
 /**
  * Class representing a waypoint

@@ -2,6 +2,9 @@ package org.flightgear.fggps.view.overlay;
 
 import org.flightgear.fggps.R;
 import org.flightgear.fggps.gps.GPS;
+import org.mapsforge.android.maps.Projection;
+import org.mapsforge.android.maps.overlay.Overlay;
+import org.mapsforge.core.GeoPoint;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -11,10 +14,7 @@ import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapView;
-import com.google.android.maps.Overlay;
-import com.google.android.maps.Projection;
+
 
 public class PlaneOverlay extends Overlay {
 
@@ -58,12 +58,10 @@ public class PlaneOverlay extends Overlay {
 	}
 	
 	@Override
-	public boolean draw(Canvas canvas, MapView mapView, boolean shadow,
-			long when) {
+	protected void drawOverlayBitmap(Canvas canvas, Point drawPosition,
+			Projection projection, byte drawZoomLevel) {
 		
 		updateHeading(gps.getHeading());
-		
-		Projection projection = mapView.getProjection();
 		
 		Point point = new Point();
 				
@@ -73,11 +71,10 @@ public class PlaneOverlay extends Overlay {
 				point.x - rotatedPlaneIcon.getWidth() / 2,
 				point.y - rotatedPlaneIcon.getHeight() / 2,
 				null);
-		
-		return super.draw(canvas, mapView, shadow, when);
 	}
 	
 	public GeoPoint getGeoPointPosition() {
 		return this.gps.getGeoPointPosition();
 	}
+	
 }

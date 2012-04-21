@@ -1,7 +1,6 @@
 package org.flightgear.fggps;
 
 import java.io.IOException;
-import java.util.Timer;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -11,6 +10,9 @@ import org.flightgear.fggps.gps.GPS;
 import org.flightgear.fggps.gps.GPSScratch;
 import org.flightgear.fggps.gps.Route;
 import org.flightgear.fggps.updaters.MapUpdater;
+import org.mapsforge.android.maps.MapActivity;
+import org.mapsforge.android.maps.MapView;
+import org.mapsforge.android.maps.mapgenerator.tiledownloader.OpenCycleMapTileDownloader;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,8 +25,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapView;
+
 
 public class FlightGearGPSActivity extends MapActivity {
 
@@ -74,10 +75,10 @@ public class FlightGearGPSActivity extends MapActivity {
 
 		mapView = (MapView) findViewById(R.id.mapview);
 		mapView.setBuiltInZoomControls(true);
-		mapView.setStreetView(false);
-		mapView.setSatellite(true);
 		mapView.setKeepScreenOn(true);
 		mapView.setClickable(true);
+		mapView.setMapGenerator(new OpenCycleMapTileDownloader());
+		
 		new FGFSConnector(flightGearIP, Integer.valueOf(flightGearPort));
 
 		fgfsConnectionManager = new FGFSConnector(flightGearIP,
@@ -100,11 +101,6 @@ public class FlightGearGPSActivity extends MapActivity {
 				ConnectionTask.INTERVAL_MS, TimeUnit.MILLISECONDS);
 		scheduler.scheduleAtFixedRate(mapUpdater, 0,
 				MapUpdater.UPDATE_INTERVAL_MS, TimeUnit.MILLISECONDS);
-	}
-
-	@Override
-	protected boolean isRouteDisplayed() {
-		return false;
 	}
 
 	@Override
