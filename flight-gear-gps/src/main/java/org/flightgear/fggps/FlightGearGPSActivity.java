@@ -20,29 +20,27 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
+public class FlightGearGPSActivity extends MapActivity implements
+		OnClickListener, OnTouchListener {
 
-
-public class FlightGearGPSActivity extends MapActivity {
-
+	private FlightGearGPSContext flightGearGPSContext = FlightGearGPSContext.getContext();
+	
 	private FGFSConnector fgfsConnectionManager;
-
-	public static GPS gps;
-
-	public static GPSScratch gpsScratch;
 
 	private SharedPreferences preferences;
 
-	// private RotateView rotateView;
-
 	private MapView mapView;
-
-	/** Timer responsible for the running the updater tasks */
-	// private Timer timer;
 
 	/** Task responsible for updating the map drawings */
 	private MapUpdater mapUpdater;
@@ -69,30 +67,37 @@ public class FlightGearGPSActivity extends MapActivity {
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 		String flightGearIP = preferences.getString("flightgear_ip",
-				"192.168.1.100");
+				"192.168.0.100");
 		String flightGearPort = preferences
 				.getString("flightgear_port", "9000");
 
 		mapView = (MapView) findViewById(R.id.mapview);
 		mapView.setBuiltInZoomControls(true);
+		mapView.getMapZoomControls().setZoomControlsGravity(
+				Gravity.BOTTOM + Gravity.CENTER_HORIZONTAL);
 		mapView.setKeepScreenOn(true);
 		mapView.setClickable(true);
 		mapView.setMapGenerator(new OpenCycleMapTileDownloader());
+		
+		mapView.setOnTouchListener(this);
 		
 		new FGFSConnector(flightGearIP, Integer.valueOf(flightGearPort));
 
 		fgfsConnectionManager = new FGFSConnector(flightGearIP,
 				Integer.valueOf(flightGearPort));
 
-		gpsScratch = new GPSScratch(fgfsConnectionManager);
+		flightGearGPSContext.setGpsScratch(new GPSScratch(fgfsConnectionManager));
 
-		gps = new GPS();
+		ImageButton buttonLocation = (ImageButton) findViewById(R.id.buttonLocation);
+		buttonLocation.setOnClickListener(this);
+
+		flightGearGPSContext.setGps(new GPS());
 
 		this.mapUpdater = new MapUpdater(mapView, fgfsConnectionManager,
-				this.getResources(), gps, new Route(), updateHandler);
+				this.getResources(), updateHandler);
 
 		this.connectionTask = new ConnectionTask(fgfsConnectionManager);
-		
+
 	}
 
 	private void scheduleTimers() {
@@ -155,6 +160,8 @@ public class FlightGearGPSActivity extends MapActivity {
 	}
 
 	public void updateTextView() {
+		GPS gps = flightGearGPSContext.getGps();
+		
 		TextView textGroundSpeed = (TextView) findViewById(R.id.groundspeedKt);
 		TextView textAltitudeFt = (TextView) findViewById(R.id.altitudeFt);
 
@@ -163,4 +170,29 @@ public class FlightGearGPSActivity extends MapActivity {
 
 	}
 
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.buttonLocation:
+			mapUpdater.centerPlane();
+			mapUpdater.setAutocenter(true);
+			break;
+		default:
+			break;
+		}
+	}
+
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+		switch (v.getId()) {
+		case R.id.mapview:
+			if (event.getActionMasked() == MotionEvent.ACTION_MOVE) {
+				mapUpdater.setAutocenter(false);
+			}
+			break;
+		default:
+			break;
+		}
+		return false;
+	}
 }
