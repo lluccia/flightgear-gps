@@ -15,22 +15,20 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Spinner;
 
 public class SearchActivity extends ListActivity implements OnClickListener {
 
-	private GPS gps = FlightGearGPSActivity.gps;
-
-	private GPSScratch gpsScratch = FlightGearGPSActivity.gpsScratch;
-
+	private FlightGearGPSContext flightGearGPSContext = FlightGearGPSContext.getContext();
+	
+	private GPSScratch gpsScratch = flightGearGPSContext.getGpsScratch();
+	
+	private GPS gps = flightGearGPSContext.getGps();
+	
 	private List<Waypoint> queryResults = new ArrayList<Waypoint>();
-
-	private ArrayAdapter<Waypoint> waypointsListAdapter;
 
 	private static Integer MAX_RESULTS = 5;
 
@@ -48,19 +46,7 @@ public class SearchActivity extends ListActivity implements OnClickListener {
 		
 		button = (Button) findViewById(R.id.buttonDTO);
 		button.setOnClickListener(this);
-
-		waypointsListAdapter = new ArrayAdapter<Waypoint>(
-				this.getApplicationContext(), R.layout.waypoint_lists_item,
-				R.id.textWaypoint, queryResults);
-
-		waypointsListAdapter.setNotifyOnChange(true);
-
-		//ListView list = (ListView) findViewById(R.id.list);
-		//list.setAdapter(waypointsListAdapter);
 		
-		setListAdapter(waypointsListAdapter);
-		
-		getListView().setItemsCanFocus(true);
 	}
 
 	@Override
@@ -74,7 +60,7 @@ public class SearchActivity extends ListActivity implements OnClickListener {
 			dialog = ProgressDialog.show(SearchActivity.this, "",
 					"Searching. Please wait...", true);
 
-			new Thread() {
+			Thread searchThread = new Thread() {
 				public void run() {
 					try {
 						gpsScratch.setPosition(gps.getGeoPointPosition());
@@ -85,7 +71,9 @@ public class SearchActivity extends ListActivity implements OnClickListener {
 
 						queryResults.clear();
 						queryResults.addAll(nearest);
-						waypointsListAdapter.notifyDataSetChanged();
+						
+						FlightGearGPSContext.getContext().setQueryResults(queryResults);
+						
 					} catch (Exception e) {
 						Log.e("SearchActivity", e.getMessage());
 					}
@@ -96,13 +84,23 @@ public class SearchActivity extends ListActivity implements OnClickListener {
 
 					@Override
 					public void handleMessage(Message msg) {
-						waypointsListAdapter.notifyDataSetChanged();
 						dialog.dismiss();
 					}
 				};
 
-			}.start();
-
+			};
+			searchThread.start();
+			
+			while (searchThread.isAlive()) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			this.finish();
+			
 			break;
 
 		case R.id.buttonSearch:
@@ -133,9 +131,12 @@ public class SearchActivity extends ListActivity implements OnClickListener {
 						queryResults.clear();
 						queryResults.addAll(results);
 
+						FlightGearGPSContext.getContext().setQueryResults(queryResults);
+						
 					} catch (Exception e) {
 						Log.e("SearchActivity", e.getMessage());
 					}
+					
 					handler.sendEmptyMessage(0);
 				}
 
@@ -143,16 +144,17 @@ public class SearchActivity extends ListActivity implements OnClickListener {
 
 					@Override
 					public void handleMessage(Message msg) {
-						waypointsListAdapter.notifyDataSetChanged();
 						dialog.dismiss();
 					}
 				};
 
 			}.start();
-
+			
+			this.finish();
+			
 			break;
 
-		case R.id.buttonDTO:
+	/*	case R.id.buttonDTO:
 			
 			ListView list = getListView();
 			//Waypoint selectedItem = (Waypoint) list.getSelectedItem();
@@ -162,11 +164,10 @@ public class SearchActivity extends ListActivity implements OnClickListener {
 				gpsScratch.direct(selectedItem);
 			}
 			this.finish();
-			break;
+			break;*/
 		default:
 			break;
 		}
 
 	}
-	
 }

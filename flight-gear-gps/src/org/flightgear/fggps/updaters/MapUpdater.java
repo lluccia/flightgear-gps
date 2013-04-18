@@ -3,13 +3,13 @@ package org.flightgear.fggps.updaters;
 import java.util.List;
 import java.util.TimerTask;
 
-import org.flightgear.fggps.connection.FGFSConnector;
+import org.flightgear.data.PropertyTree;
+import org.flightgear.fggps.FlightGearGPSContext;
 import org.flightgear.fggps.extractor.GPSExtractor;
 import org.flightgear.fggps.extractor.RouteExtractor;
-import org.flightgear.fggps.gps.GPS;
-import org.flightgear.fggps.gps.Route;
 import org.flightgear.fggps.view.overlay.PlaneOverlay;
 import org.flightgear.fggps.view.overlay.RouteOverlay;
+import org.flightgear.fggps.view.overlay.SearchResultsOverlay;
 import org.mapsforge.android.maps.MapView;
 import org.mapsforge.android.maps.overlay.Overlay;
 import org.mapsforge.core.GeoPoint;
@@ -17,8 +17,6 @@ import org.mapsforge.core.GeoPoint;
 import android.content.res.Resources;
 import android.os.Handler;
 import android.util.Log;
-
-
 
 /**
  * This class is responsible for updating the map data, including current
@@ -29,8 +27,11 @@ import android.util.Log;
  */
 public class MapUpdater extends TimerTask {
 
+	private FlightGearGPSContext flightGearGPSContext = FlightGearGPSContext
+			.getContext();
+
 	/** Time between position updates */
-	public final static long UPDATE_INTERVAL_MS = 3000;
+	public final static long UPDATE_INTERVAL_MS = 1000;
 
 	private MapView mapView;
 
@@ -38,73 +39,80 @@ public class MapUpdater extends TimerTask {
 
 	private RouteOverlay routeOverlay;
 
+	private SearchResultsOverlay searchResultsOverlay;
+
 	private GPSExtractor gpsExtractor;
 
 	private RouteExtractor routeExtractor;
 
-	private boolean online = false;
-
 	private Handler updateHandler;
 
-	public MapUpdater(MapView mapView, FGFSConnector fgConnector,
-			Resources resources, GPS gps, Route route, Handler updateHandler) {
+	private boolean autocenter = true;
+
+	public MapUpdater(MapView mapView, PropertyTree propertyTree,
+			Resources resources, Handler updateHandler) {
 		super();
 		this.mapView = mapView;
 
-		this.planeOverlay = new PlaneOverlay(resources, gps);
-		this.routeOverlay = new RouteOverlay(route);
+		this.planeOverlay = new PlaneOverlay(resources,
+				flightGearGPSContext.getGps());
+		this.routeOverlay = new RouteOverlay(flightGearGPSContext.getRoute());
+		this.searchResultsOverlay = new SearchResultsOverlay(resources);
 
 		GeoPoint homePosition = new GeoPoint(0, 0);
 
 		mapView.getController().setCenter(homePosition);
 
-		this.gpsExtractor = new GPSExtractor(fgConnector, gps);
-		this.routeExtractor = new RouteExtractor(fgConnector, route);
-		
+		this.gpsExtractor = new GPSExtractor(propertyTree,
+				flightGearGPSContext.getGps());
+		this.routeExtractor = new RouteExtractor(propertyTree,
+				flightGearGPSContext.getRoute());
+
 		this.updateHandler = updateHandler;
-		
+
 		setOnlineOverlays();
 	}
 
 	public void setOnlineOverlays() {
 		List<Overlay> overlays = mapView.getOverlays();
 		overlays.clear();
-		overlays.add(routeOverlay);
-		overlays.add(planeOverlay);
-	}
 
-	public void setOfflineOverlays() {
-		List<Overlay> overlays = mapView.getOverlays();
-		overlays.clear();
+		overlays.add(planeOverlay);
+
+		overlays.add(routeOverlay);
+
+		overlays.add(searchResultsOverlay.getItemizedOverlay());
 	}
 
 	public void update() {
 		gpsExtractor.extractData();
 		routeExtractor.extractData();
+
+		if (autocenter) {
+			centerPlane();
+		}
+		
+		searchResultsOverlay.updateResults(flightGearGPSContext.getQueryResults());
 		
 		updateHandler.sendEmptyMessage(0);
-		
-		mapView.getController().setCenter(planeOverlay.getGeoPointPosition());
-	}
-
-	private void changeOnlineStatus(boolean connected) {
-		if (online) {
-			if (!connected) {
-				setOfflineOverlays();
-				online = false;
-			}
-		} else {
-			if (connected) {
-				setOnlineOverlays();
-				online = true;
-			}
-		}
 	}
 
 	@Override
 	public void run() {
 		Log.d("MapUpdater", "Updating map data...");
 		this.update();
+	}
+
+	public void centerPlane() {
+		mapView.getController().setCenter(planeOverlay.getGeoPointPosition());
+	}
+
+	public boolean isAutocenter() {
+		return autocenter;
+	}
+
+	public void setAutocenter(boolean autocenter) {
+		this.autocenter = autocenter;
 	}
 
 }

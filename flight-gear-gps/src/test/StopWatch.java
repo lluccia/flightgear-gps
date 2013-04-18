@@ -1,4 +1,4 @@
-package test.java;
+package test;
 
 /*
     Copyright (c) 2005, Corey Goldberg

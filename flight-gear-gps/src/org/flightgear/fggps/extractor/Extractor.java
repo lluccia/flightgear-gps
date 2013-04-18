@@ -1,6 +1,8 @@
 package org.flightgear.fggps.extractor;
 
-import org.flightgear.fggps.connection.FGFSConnector;
+import org.flightgear.data.PropertyTree;
+
+import android.util.Log;
 
 /**
  * Abstract class representing a data object that can be extracted from game properties
@@ -10,20 +12,22 @@ import org.flightgear.fggps.connection.FGFSConnector;
  */
 public abstract class Extractor<T> {
 	
-	private FGFSConnector fgConnector;
+	private PropertyTree propertyTree;
 	
 	private T dataObject;
 	
-	public Extractor(FGFSConnector fgConnector, T dataObject) {
-		this.fgConnector = fgConnector;
+	public Extractor(PropertyTree propertyTree, T dataObject) {
+		this.propertyTree = propertyTree;
 		this.dataObject = dataObject;
 	}
 	
 	public void extractData() {
-		if (fgConnector.isConnected()) {
-			extractData(fgConnector, dataObject);
+		try {
+			extractData(propertyTree, dataObject);
+		} catch (RuntimeException e) {
+			Log.w(Extractor.class.getSimpleName(), "Error ocurred during data extraction", e);
 		}
 	}
 	
-	public abstract void extractData(FGFSConnector fgConnector, T dataObject);
+	public abstract void extractData(PropertyTree propertyTree, T dataObject);
 }
