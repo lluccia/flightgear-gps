@@ -1,14 +1,15 @@
 package org.flightgear.fggps;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.flightgear.data.PropertyTree;
+import org.flightgear.data.PropertyTreeTelnet;
 import org.flightgear.fggps.connection.ConnectionTask;
-import org.flightgear.fggps.connection.FGFSConnector;
 import org.flightgear.fggps.gps.GPS;
 import org.flightgear.fggps.gps.GPSScratch;
-import org.flightgear.fggps.gps.Route;
 import org.flightgear.fggps.updaters.MapUpdater;
 import org.mapsforge.android.maps.MapActivity;
 import org.mapsforge.android.maps.MapView;
@@ -36,7 +37,7 @@ public class FlightGearGPSActivity extends MapActivity implements
 
 	private FlightGearGPSContext flightGearGPSContext = FlightGearGPSContext.getContext();
 	
-	private FGFSConnector fgfsConnectionManager;
+	private PropertyTree propertyTree;
 
 	private SharedPreferences preferences;
 
@@ -67,37 +68,44 @@ public class FlightGearGPSActivity extends MapActivity implements
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 		String flightGearIP = preferences.getString("flightgear_ip",
-				"192.168.0.100");
+				"192.168.0.200");
 		String flightGearPort = preferences
 				.getString("flightgear_port", "9000");
 
 		mapView = (MapView) findViewById(R.id.mapview);
-		mapView.setBuiltInZoomControls(true);
-		mapView.getMapZoomControls().setZoomControlsGravity(
-				Gravity.BOTTOM + Gravity.CENTER_HORIZONTAL);
+		
 		mapView.setKeepScreenOn(true);
 		mapView.setClickable(true);
 		mapView.setMapGenerator(new OpenCycleMapTileDownloader());
 		
 		mapView.setOnTouchListener(this);
 		
-		new FGFSConnector(flightGearIP, Integer.valueOf(flightGearPort));
+		try {
+			propertyTree = new PropertyTreeTelnet(flightGearIP,
+					Integer.valueOf(flightGearPort));
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-		fgfsConnectionManager = new FGFSConnector(flightGearIP,
-				Integer.valueOf(flightGearPort));
-
-		flightGearGPSContext.setGpsScratch(new GPSScratch(fgfsConnectionManager));
+		flightGearGPSContext.setGpsScratch(new GPSScratch(propertyTree));
 
 		ImageButton buttonLocation = (ImageButton) findViewById(R.id.buttonLocation);
 		buttonLocation.setOnClickListener(this);
 
 		flightGearGPSContext.setGps(new GPS());
 
-		this.mapUpdater = new MapUpdater(mapView, fgfsConnectionManager,
+		this.mapUpdater = new MapUpdater(mapView, propertyTree,
 				this.getResources(), updateHandler);
 
-		this.connectionTask = new ConnectionTask(fgfsConnectionManager);
-
+		this.connectionTask = new ConnectionTask(propertyTree);
+		scheduleTimers();
 	}
 
 	private void scheduleTimers() {
@@ -111,7 +119,7 @@ public class FlightGearGPSActivity extends MapActivity implements
 	@Override
 	protected void onPause() {
 		super.onPause();
-		scheduler.shutdown();
+		scheduler.shutdownNow();
 	}
 
 	@Override
@@ -122,14 +130,9 @@ public class FlightGearGPSActivity extends MapActivity implements
 
 	@Override
 	protected void onDestroy() {
+		propertyTree.close();
+		scheduler.shutdownNow();
 		super.onDestroy();
-		try {
-			fgfsConnectionManager.close();
-			scheduler.shutdown();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	@Override

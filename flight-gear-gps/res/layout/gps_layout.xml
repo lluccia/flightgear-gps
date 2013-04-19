@@ -11,43 +11,32 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
 
-<!--     <RelativeLayout
-        android:id="@+id/infoBoxTop"
-        style="@style/TextBox"
-        android:layout_width="fill_parent"
-        android:layout_height="60dp"
-        android:layout_alignParentLeft="true"
+    <ImageButton
+        android:id="@+id/buttonLocation"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:orientation="vertical"
-        android:visibility="invisible" >
-    </RelativeLayout> -->
-    
- 	<ImageButton
-            android:id="@+id/buttonLocation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true" 
-            
-            android:src="@drawable/ic_location"  android:layout_marginTop="10sp" android:layout_marginRight="10sp"/>
- 	
+        android:layout_marginRight="10sp"
+        android:layout_marginTop="10sp"
+        android:src="@drawable/ic_location" />
+
     <RelativeLayout
-        android:id="@+id/infoBoxBottom"
+        android:id="@+id/infoBoxBottomLeft"
         style="@style/TextBox"
-        android:layout_width="fill_parent"
+        android:layout_width="90dp"
         android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:orientation="vertical" >
+        android:gravity="bottom|left"
+        android:orientation="vertical"
+        android:paddingBottom="5dp"
+        android:paddingLeft="5dp" >
 
         <LinearLayout
             android:id="@+id/groundSpeedBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
             android:orientation="vertical" >
 
             <TextView
@@ -64,30 +53,47 @@
                 android:layout_height="wrap_content"
                 android:text="000 kt" />
         </LinearLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/infoBoxBottomRight"
+        style="@style/TextBox"
+        android:layout_width="90dp"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:gravity="bottom|right"
+        android:orientation="vertical"
+        android:paddingBottom="5dp"
+        android:paddingRight="5dp" >
 
         <LinearLayout
             android:id="@+id/altitudeBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
             android:gravity="right"
             android:orientation="vertical" >
 
             <TextView
                 android:id="@+id/labelAlt"
                 style="@style/TextWithShadow"
-                android:layout_width="wrap_content"
+                android:layout_width="65dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="3.92"
+                android:gravity="right"
                 android:text="alt" />
 
             <TextView
                 android:id="@+id/altitudeFt"
                 style="@style/TextWithShadow"
-                android:layout_width="wrap_content"
+                android:layout_width="98dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="3.92"
+                android:gravity="right"
                 android:text="00000 ft" />
+
         </LinearLayout>
+
     </RelativeLayout>
 
 </RelativeLayout>

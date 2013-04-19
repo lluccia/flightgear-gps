@@ -15,7 +15,6 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -30,8 +29,6 @@ public class SearchActivity extends ListActivity implements OnClickListener {
 	private GPS gps = flightGearGPSContext.getGps();
 	
 	private List<Waypoint> queryResults = new ArrayList<Waypoint>();
-
-	private ArrayAdapter<Waypoint> waypointsListAdapter;
 
 	private static Integer MAX_RESULTS = 5;
 
@@ -77,7 +74,6 @@ public class SearchActivity extends ListActivity implements OnClickListener {
 						
 						FlightGearGPSContext.getContext().setQueryResults(queryResults);
 						
-						//waypointsListAdapter.notifyDataSetChanged();
 					} catch (Exception e) {
 						Log.e("SearchActivity", e.getMessage());
 					}
@@ -135,9 +131,12 @@ public class SearchActivity extends ListActivity implements OnClickListener {
 						queryResults.clear();
 						queryResults.addAll(results);
 
+						FlightGearGPSContext.getContext().setQueryResults(queryResults);
+						
 					} catch (Exception e) {
 						Log.e("SearchActivity", e.getMessage());
 					}
+					
 					handler.sendEmptyMessage(0);
 				}
 
@@ -145,7 +144,6 @@ public class SearchActivity extends ListActivity implements OnClickListener {
 
 					@Override
 					public void handleMessage(Message msg) {
-						waypointsListAdapter.notifyDataSetChanged();
 						dialog.dismiss();
 					}
 				};

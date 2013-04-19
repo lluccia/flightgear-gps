@@ -3,7 +3,7 @@
 
     <item
         android:id="@+id/menu_preferences"
-        android:icon="@drawable/preferences"
+        android:icon="@drawable/ic_config"
         android:title="Preferences"
         />
     

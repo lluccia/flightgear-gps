@@ -11,11 +11,10 @@ public enum WaypointType {
 	private String queryString;
 
 	WaypointType(String queryString) {
-		this.queryString=queryString;
+		this.queryString = queryString;
 	}
 	
 	public String getQueryString() {
 		return queryString;
 	}
-	
 }

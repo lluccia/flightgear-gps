@@ -3,8 +3,8 @@ package org.flightgear.fggps.updaters;
 import java.util.List;
 import java.util.TimerTask;
 
+import org.flightgear.data.PropertyTree;
 import org.flightgear.fggps.FlightGearGPSContext;
-import org.flightgear.fggps.connection.FGFSConnector;
 import org.flightgear.fggps.extractor.GPSExtractor;
 import org.flightgear.fggps.extractor.RouteExtractor;
 import org.flightgear.fggps.view.overlay.PlaneOverlay;
@@ -31,7 +31,7 @@ public class MapUpdater extends TimerTask {
 			.getContext();
 
 	/** Time between position updates */
-	public final static long UPDATE_INTERVAL_MS = 3000;
+	public final static long UPDATE_INTERVAL_MS = 1000;
 
 	private MapView mapView;
 
@@ -49,7 +49,7 @@ public class MapUpdater extends TimerTask {
 
 	private boolean autocenter = true;
 
-	public MapUpdater(MapView mapView, FGFSConnector fgConnector,
+	public MapUpdater(MapView mapView, PropertyTree propertyTree,
 			Resources resources, Handler updateHandler) {
 		super();
 		this.mapView = mapView;
@@ -63,9 +63,9 @@ public class MapUpdater extends TimerTask {
 
 		mapView.getController().setCenter(homePosition);
 
-		this.gpsExtractor = new GPSExtractor(fgConnector,
+		this.gpsExtractor = new GPSExtractor(propertyTree,
 				flightGearGPSContext.getGps());
-		this.routeExtractor = new RouteExtractor(fgConnector,
+		this.routeExtractor = new RouteExtractor(propertyTree,
 				flightGearGPSContext.getRoute());
 
 		this.updateHandler = updateHandler;
@@ -86,7 +86,7 @@ public class MapUpdater extends TimerTask {
 
 	public void update() {
 		gpsExtractor.extractData();
-		routeExtractor.extractData();
+		//routeExtractor.extractData();
 
 		if (autocenter) {
 			centerPlane();
