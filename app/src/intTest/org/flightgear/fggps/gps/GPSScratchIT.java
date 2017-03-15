@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mapsforge.core.GeoPoint;
 
+@Ignore
 public class GPSScratchIT {
 
 	private GPSScratch gpsScratch;

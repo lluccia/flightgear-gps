@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:example="http://schemas.android.com/apk/res/com.uks.android.frsad.common" >
 
@@ -7,7 +7,7 @@
         <EditTextPreference
             android:dialogMessage="IP address of FlighGear"
             android:dialogTitle="FlightGear IP"
-            android:defaultValue="192.168.1.1"
+            android:defaultValue="192.168.0.100"
             android:key="flightgear_ip"
             android:persistent="true"
             android:summary="Sets the IP address of FlighGear application"
