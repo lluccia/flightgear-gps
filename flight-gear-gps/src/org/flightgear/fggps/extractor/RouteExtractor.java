@@ -16,29 +16,25 @@ public class RouteExtractor extends Extractor<Route> {
 		
 		route.clearWaypoints();
 		
-		int latitudeE6 = (int)(propertyTree.getDouble("/instrumentation/gps/wp/wp/latitude-deg")*1e6);
-		int longitudeE6 = (int)(propertyTree.getDouble("/instrumentation/gps/wp/wp/longitude-deg")*1e6);
+		int latitudeE6 = (int)(propertyTree.getDouble("/instrumentation/gps/wp/wp/latitude-deg") * 1e6);
+		int longitudeE6 = (int)(propertyTree.getDouble("/instrumentation/gps/wp/wp/longitude-deg") * 1e6);
 		
 		Waypoint waypoint = new Waypoint();
 		waypoint.setGeoPoint(new GeoPoint(latitudeE6, longitudeE6));
 		
 		route.setStartWaypoint(waypoint);
-		
-		for (int i=1; i < 10;i++) {
-			if (propertyTree.getDouble("/instrumentation/gps/wp/wp["+i+"]/latitude-deg") != null) {
-				latitudeE6 = (int)(propertyTree.getDouble("/instrumentation/gps/wp/wp["+i+"]/latitude-deg")*1e6);
-				longitudeE6 = (int)(propertyTree.getDouble("/instrumentation/gps/wp/wp["+i+"]/longitude-deg")*1e6);
-				
-				waypoint = new Waypoint();
-				waypoint.setGeoPoint(new GeoPoint(latitudeE6, longitudeE6));
-				
-				route.addWaypoint(waypoint);
-				
-			} else {
-				break;
-			}
-		}
-		
-	}
 
+		//TODO - Identify how many route waypoints exist
+		int waypointCount = 1;
+		
+		for (int i=1; i <= waypointCount; i++) {
+			latitudeE6 = (int)(propertyTree.getDouble("/instrumentation/gps/wp/wp["+i+"]/latitude-deg") * 1e6);
+			longitudeE6 = (int)(propertyTree.getDouble("/instrumentation/gps/wp/wp["+i+"]/longitude-deg") * 1e6);
+			
+			waypoint = new Waypoint();
+			waypoint.setGeoPoint(new GeoPoint(latitudeE6, longitudeE6));
+			
+			route.addWaypoint(waypoint);
+		}
+	}
 }

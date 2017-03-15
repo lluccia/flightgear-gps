@@ -1,7 +1,6 @@
 package org.flightgear.fggps.updaters;
 
 import java.util.List;
-import java.util.TimerTask;
 
 import org.flightgear.data.PropertyTree;
 import org.flightgear.fggps.FlightGearGPSContext;
@@ -9,7 +8,6 @@ import org.flightgear.fggps.extractor.GPSExtractor;
 import org.flightgear.fggps.extractor.RouteExtractor;
 import org.flightgear.fggps.view.overlay.PlaneOverlay;
 import org.flightgear.fggps.view.overlay.RouteOverlay;
-import org.flightgear.fggps.view.overlay.SearchResultsOverlay;
 import org.mapsforge.android.maps.MapView;
 import org.mapsforge.android.maps.overlay.Overlay;
 import org.mapsforge.core.GeoPoint;
@@ -25,13 +23,14 @@ import android.util.Log;
  * @author Leandro Conca
  * 
  */
-public class MapUpdater extends TimerTask {
+public class MapUpdater implements Runnable {
 
 	private FlightGearGPSContext flightGearGPSContext = FlightGearGPSContext
 			.getContext();
 
 	/** Time between position updates */
-	public final static long UPDATE_INTERVAL_MS = 1000;
+	public static final long UPDATE_INTERVAL_MS = 300L;
+	public static final int ROUTE_UPDATE_SKIPS = 10;
 
 	private MapView mapView;
 
@@ -39,7 +38,7 @@ public class MapUpdater extends TimerTask {
 
 	private RouteOverlay routeOverlay;
 
-	private SearchResultsOverlay searchResultsOverlay;
+//	private SearchResultsOverlay searchResultsOverlay;
 
 	private GPSExtractor gpsExtractor;
 
@@ -49,6 +48,8 @@ public class MapUpdater extends TimerTask {
 
 	private boolean autocenter = true;
 
+	private int routeSkipCount = 0;
+
 	public MapUpdater(MapView mapView, PropertyTree propertyTree,
 			Resources resources, Handler updateHandler) {
 		super();
@@ -57,7 +58,7 @@ public class MapUpdater extends TimerTask {
 		this.planeOverlay = new PlaneOverlay(resources,
 				flightGearGPSContext.getGps());
 		this.routeOverlay = new RouteOverlay(flightGearGPSContext.getRoute());
-		this.searchResultsOverlay = new SearchResultsOverlay(resources);
+//		this.searchResultsOverlay = new SearchResultsOverlay(resources);
 
 		GeoPoint homePosition = new GeoPoint(0, 0);
 
@@ -78,21 +79,25 @@ public class MapUpdater extends TimerTask {
 		overlays.clear();
 
 		overlays.add(planeOverlay);
-
 		overlays.add(routeOverlay);
-
-		overlays.add(searchResultsOverlay.getItemizedOverlay());
+//		overlays.add(searchResultsOverlay.getItemizedOverlay());
 	}
 
 	public void update() {
 		gpsExtractor.extractData();
-		//routeExtractor.extractData();
+		
+		if (routeSkipCount == ROUTE_UPDATE_SKIPS) {
+			routeExtractor.extractData();
+			routeSkipCount = 0;
+		} else {
+			routeSkipCount ++;
+		}
 
 		if (autocenter) {
 			centerPlane();
 		}
 		
-		searchResultsOverlay.updateResults(flightGearGPSContext.getQueryResults());
+//		searchResultsOverlay.updateResults(flightGearGPSContext.getQueryResults());
 		
 		updateHandler.sendEmptyMessage(0);
 	}

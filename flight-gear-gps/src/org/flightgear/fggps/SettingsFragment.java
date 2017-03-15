@@ -1,9 +1,9 @@
 package org.flightgear.fggps;
 
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
+import android.preference.PreferenceFragment;
 
-public class PreferencesActivity extends PreferenceActivity {
+public class SettingsFragment extends PreferenceFragment {
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {

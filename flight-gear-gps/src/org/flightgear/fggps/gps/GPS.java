@@ -1,8 +1,10 @@
 package org.flightgear.fggps.gps;
 
+import java.util.Observable;
+
 import org.mapsforge.core.GeoPoint;
 
-public class GPS {
+public class GPS extends Observable {
 
 	private double latitude;
 	

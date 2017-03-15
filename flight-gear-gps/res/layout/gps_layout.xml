@@ -9,18 +9,9 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/mapview"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
-
-    <ImageButton
-        android:id="@+id/buttonLocation"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginRight="10sp"
-        android:layout_marginTop="10sp"
-        android:src="@drawable/ic_location" />
-
+        android:layout_height="fill_parent" 
+        />
+    
     <RelativeLayout
         android:id="@+id/infoBoxBottomLeft"
         style="@style/TextBox"
@@ -31,7 +22,10 @@
         android:gravity="bottom|left"
         android:orientation="vertical"
         android:paddingBottom="5dp"
-        android:paddingLeft="5dp" >
+        android:paddingLeft="5dp" 
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="5dp"
+        >
 
         <LinearLayout
             android:id="@+id/groundSpeedBox"
@@ -44,14 +38,14 @@
                 style="@style/TextWithShadow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="GS" />
+                android:text="@string/gs" />
 
             <TextView
                 android:id="@+id/groundspeedKt"
                 style="@style/TextWithShadow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="000 kt" />
+                android:text="@string/kt" />
         </LinearLayout>
     </RelativeLayout>
 
@@ -65,7 +59,9 @@
         android:gravity="bottom|right"
         android:orientation="vertical"
         android:paddingBottom="5dp"
-        android:paddingRight="5dp" >
+        android:paddingRight="5dp" 
+        android:layout_marginBottom="5dp"
+        android:layout_marginRight="5dp">
 
         <LinearLayout
             android:id="@+id/altitudeBox"
@@ -81,7 +77,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="3.92"
                 android:gravity="right"
-                android:text="alt" />
+                android:text="@string/alt" />
 
             <TextView
                 android:id="@+id/altitudeFt"
@@ -90,7 +86,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="3.92"
                 android:gravity="right"
-                android:text="00000 ft" />
+                android:text="@string/ft" />
 
         </LinearLayout>
 

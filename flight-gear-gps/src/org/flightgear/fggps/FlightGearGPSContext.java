@@ -80,5 +80,4 @@ public class FlightGearGPSContext {
 	public void setRouteDefined(boolean routeDefined) {
 		this.routeDefined = routeDefined;
 	}
-	
 }

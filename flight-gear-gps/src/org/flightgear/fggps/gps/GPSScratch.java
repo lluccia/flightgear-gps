@@ -7,6 +7,8 @@ import java.util.Locale;
 import org.flightgear.data.PropertyTree;
 import org.mapsforge.core.GeoPoint;
 
+import android.util.Log;
+
 /**
  * GPS controller class that interacts with FlightGear GPS internals
  * 
@@ -15,10 +17,14 @@ import org.mapsforge.core.GeoPoint;
  */
 public class GPSScratch {
 
+	private static final String TAG = "GPSScratch";
+
 	private PropertyTree propertyTree;
 
-	private static final String PROPERTY_PATH_SCRATCH = "instrumentation/gps/scratch/";
-	private static final String PROPERTY_PATH_COMMAND = "instrumentation/gps/command/";
+	private static final String PROPERTY_PATH_SCRATCH = "instrumentation/gps/scratch";
+	private static final String PROPERTY_PATH_SCRATCH_WITH_SEPARATOR = PROPERTY_PATH_SCRATCH
+			+ "/";
+	private static final String PROPERTY_PATH_COMMAND_WITH_SEPARATOR = "instrumentation/gps/command/";
 
 	private static final String PROPERTY_PATH_CURRENT_WAYPOINT = "wp/wp/";
 	private static final String PROPERTY_PATH_ACTIVE_WAYPOINT = "wp/wp[1]/";
@@ -65,8 +71,11 @@ public class GPSScratch {
 	}
 
 	/**
-	 * Sets current position in GPS Scratch. This will affect the nearest search. 
-	 * @param geopoint - current position
+	 * Sets current position in GPS Scratch. This will affect the nearest
+	 * search.
+	 * 
+	 * @param geopoint
+	 *            - current position
 	 */
 	public void setPosition(GeoPoint geopoint) {
 		setProperty("latitude-deg", Double.toString(geopoint.getLatitude()));
@@ -80,15 +89,17 @@ public class GPSScratch {
 	 */
 	public Waypoint getWaypointInScratch() {
 		Waypoint waypoint = new Waypoint();
-	
+		
 		waypoint.setIdent(getProperty("ident"));
 		waypoint.setName(getProperty("name"));
 		waypoint.setType(WaypointType.valueOf(getProperty("type").toUpperCase(Locale.ENGLISH)));
 	
 		waypoint.setGeoPoint(new GeoPoint(
-				(int) (getPropertyDouble("latitude-deg") * 1e6),
-				(int) (getPropertyDouble("longitude-deg") * 1e6)));
+				(int) (Double.valueOf(getPropertyDouble("latitude-deg")) * 1e6),
+				(int) (Double.valueOf(getPropertyDouble("longitude-deg")) * 1e6)));
 	
+		waypoint.setDistanceNM(getPropertyDouble("distance-nm"));
+		
 		return waypoint;
 	}
 
@@ -151,41 +162,54 @@ public class GPSScratch {
 	}
 
 	private void setProperty(String property, String value) {
-		propertyTree.set(PROPERTY_PATH_SCRATCH + property, value);
+		propertyTree
+				.set(PROPERTY_PATH_SCRATCH_WITH_SEPARATOR + property, value);
 	}
 
 	private void setPropertyInt(String property, Integer value) {
-		propertyTree.setInt(PROPERTY_PATH_SCRATCH + property, value);
+		propertyTree.setInt(PROPERTY_PATH_SCRATCH_WITH_SEPARATOR + property,
+				value);
 	}
 
 	private void setPropertyBoolean(String property, Boolean value) {
-		propertyTree.setBoolean(PROPERTY_PATH_SCRATCH + property, value);
+		propertyTree.setBoolean(
+				PROPERTY_PATH_SCRATCH_WITH_SEPARATOR + property, value);
 	}
 
 	private String getProperty(String property) {
-		return propertyTree.get(PROPERTY_PATH_SCRATCH + property);
+		return propertyTree
+				.get(PROPERTY_PATH_SCRATCH_WITH_SEPARATOR + property);
 	}
 
 	private int getPropertyInt(String property) {
-		return propertyTree.getInt(PROPERTY_PATH_SCRATCH + property);
+		return propertyTree.getInt(PROPERTY_PATH_SCRATCH_WITH_SEPARATOR
+				+ property);
 	}
 
 	private Boolean getPropertyBoolean(String property) {
-		return propertyTree.getBoolean(PROPERTY_PATH_SCRATCH + property);
+		return propertyTree.getBoolean(PROPERTY_PATH_SCRATCH_WITH_SEPARATOR
+				+ property);
 	}
 
 	private Double getPropertyDouble(String property) {
-		return propertyTree.getDouble(PROPERTY_PATH_SCRATCH + property);
+		return propertyTree.getDouble(PROPERTY_PATH_SCRATCH_WITH_SEPARATOR
+				+ property);
 	}
 
 	private void execute(String command) {
-		propertyTree.set(PROPERTY_PATH_COMMAND, command);
+		propertyTree.set(PROPERTY_PATH_COMMAND_WITH_SEPARATOR, command);
 	}
 
 	private List<Waypoint> getResults() {
+		Log.d(TAG, "Getting waypoint results");
 		List<Waypoint> waypoints = new ArrayList<Waypoint>();
-		for (int i = 0; i < getResultCount(); i++) {
-			waypoints.add(getWaypointInScratch());
+		int resultCount = getResultCount();
+		for (int i = 0; i < resultCount; i++) {
+			Waypoint waypointInScratch = getWaypointInScratch();
+
+			Log.d(TAG, "Got waypoint:" + waypointInScratch.getIdent());
+
+			waypoints.add(waypointInScratch);
 			next();
 		}
 		return waypoints;
@@ -201,6 +225,7 @@ public class GPSScratch {
 		int resultCount = 0;
 		if (getPropertyBoolean("valid")) {
 			resultCount = getPropertyInt("result-count");
+			Log.d(TAG, "resultCount:" + resultCount);
 		}
 		return resultCount;
 	}

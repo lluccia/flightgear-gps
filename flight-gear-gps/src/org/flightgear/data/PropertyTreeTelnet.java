@@ -17,6 +17,8 @@ import android.util.Log;
 
 public class PropertyTreeTelnet implements PropertyTree {
 
+	private static final String TAG = "PropertyTreeTelnet";
+	
 	private Socket socket;
 	private BufferedReader in;
 
@@ -29,10 +31,7 @@ public class PropertyTreeTelnet implements PropertyTree {
 		this.host = host;
 		this.port = port;
 		
-		socket = new Socket(host, port);
-		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		out = new PrintWriter(socket.getOutputStream(), true);
-		setDataMode();
+		socket = new Socket();
 	}
 	
 	private void setDataMode() {
@@ -275,5 +274,8 @@ public class PropertyTreeTelnet implements PropertyTree {
 
 	public void connect() throws IOException {
 		socket.connect(new InetSocketAddress(host, port));
+		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		out = new PrintWriter(socket.getOutputStream(), true);
+		setDataMode();
 	}
 }

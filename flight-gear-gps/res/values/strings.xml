@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">Flightgear GPS</string>
+
     <string-array name="waypoint_types">
-		<item>airport</item>
-		<item>vor</item>
-		<item>ndb</item>
-		<item>fix</item>
-		<item>wpt</item>
+        <item>airport</item>
+        <item>vor</item>
+        <item>ndb</item>
+        <item>fix</item>
+        <item>wpt</item>
     </string-array>
+
+    <string name="search">search</string>
+    <string name="location">location</string>
+    <string name="gs">GS</string>
+    <string name="kt">000 kt</string>
+    <string name="alt">alt</string>
+    <string name="ft">00000 ft</string>
+
 </resources>

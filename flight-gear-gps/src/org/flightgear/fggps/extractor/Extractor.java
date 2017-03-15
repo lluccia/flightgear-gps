@@ -23,7 +23,9 @@ public abstract class Extractor<T> {
 	
 	public void extractData() {
 		try {
-			extractData(propertyTree, dataObject);
+			if (propertyTree.isConnected()) {
+				extractData(propertyTree, dataObject);
+			}
 		} catch (RuntimeException e) {
 			Log.w(Extractor.class.getSimpleName(), "Error ocurred during data extraction", e);
 		}

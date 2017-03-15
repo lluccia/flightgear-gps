@@ -2,15 +2,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/menu_preferences"
-        android:icon="@drawable/ic_config"
-        android:title="Preferences"
-        />
-    
-    <item
         android:id="@+id/menu_search"
         android:icon="@drawable/ic_search"
-        android:title="Search"
-        />
+        android:showAsAction="always"
+        android:title="Search"/>
+    <item
+        android:id="@+id/menu_location"
+        android:icon="@drawable/ic_location"
+        android:showAsAction="always"
+        android:title="Location"/>
+    <item
+        android:id="@+id/menu_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="Settings"/>
 
 </menu>

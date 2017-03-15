@@ -13,11 +13,8 @@ public class GPSExtractor extends Extractor<GPS> {
 
 	@Override
 	public void extractData(PropertyTree propertyTree, GPS gps) {
-		Map<String, String> positionData;
-		Map<String, String> orientationData;
-
-		positionData = propertyTree.dump("/position");
-		orientationData = propertyTree.dump("/orientation");
+		Map<String, String> positionData = propertyTree.dump("/position");;
+		Map<String, String> orientationData = propertyTree.dump("/orientation");;
 
 		if (dumpIsValid(positionData, orientationData)) {
 			gps.setLatitude(Double.valueOf(positionData.get("latitude-deg")));
